@@ -36,7 +36,7 @@ const upload = multer({
   });
 
 // Improved MongoDB connection with auto-reconnect
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://Sonu0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://Sonu0810:sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
@@ -54,7 +54,7 @@ mongoose.connection.on('connected', () => {
 mongoose.connection.on('disconnected', () => {
     console.log('MongoDB connection lost, attempting to reconnect...');
     setTimeout(() => {
-        mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://Sonu0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
+        mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://Sonu0810:sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
@@ -666,7 +666,7 @@ async function fetchAndStoreNews() {
     try {
         const sources = [
             {
-                url: 'https://www.agriculture.com/news',
+                url: 'https://www.agweb.com/news',
                 category: 'news',
                 selector: {
                     article: 'article',
@@ -675,18 +675,6 @@ async function fetchAndStoreNews() {
                     image: 'img',
                     link: 'a',
                     date: 'time'
-                }
-            },
-            {
-                url: 'https://www.farmers.gov.in/',
-                category: 'scheme',
-                selector: {
-                    article: '.scheme-item',
-                    title: '.scheme-title',
-                    description: '.scheme-description',
-                    image: 'img',
-                    link: 'a',
-                    date: '.scheme-date'
                 }
             }
         ];
