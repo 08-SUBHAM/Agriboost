@@ -220,14 +220,14 @@ app.get('/dashboard', checkAuth, async (req, res) => {
         res.render('dashboard', { 
             user: {
                 _id: user._id,
-                email: user.email,
-                firstname: user.firstname,
-                surname: user.surname,
-                profilePicture: user.profilePicture
+                email: user.email || '',
+                firstname: user.firstname || '',
+                surname: user.surname || '',
+                profilePicture: user.profilePicture || ''
             },
-            crops,
-            newsArticles: news,
-            schemes: schemes
+            crops: crops || [],
+            newsArticles: news || [],
+            schemes: schemes || []
         });
     } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -248,10 +248,10 @@ app.get('/profile', checkAuth, async (req, res) => {
         res.render('profile', { 
             user: {
                 _id: user._id,
-                email: user.email,
-                firstname: user.firstname,
-                surname: user.surname,
-                profilePicture: user.profilePicture
+                email: user.email || '',
+                firstname: user.firstname || '',
+                surname: user.surname || '',
+                profilePicture: user.profilePicture || ''
             },
             activeTab: req.query.tab || 'general' // Default to general tab
         });
