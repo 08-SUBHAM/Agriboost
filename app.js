@@ -137,10 +137,10 @@ app.use(async (req, res, next) => {
             if (user) {
                 res.locals.user = {
                     _id: user._id,
-                    email: user.email,
-                    firstname: user.firstname,
-                    surname: user.surname,
-                    profilePicture: user.profilePicture
+                    email: user.email || '',
+                    firstname: user.firstname || '',
+                    surname: user.surname || '',
+                    profilePicture: user.profilePicture || ''
                 };
                 req.user = res.locals.user;
             } else {

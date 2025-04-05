@@ -38,9 +38,9 @@ const isAuthenticated = async (req, res, next) => {
         // Add user info to request object and locals
         req.user = {
             _id: user._id,
-            email: user.email,
-            firstname: user.firstname,
-            surname: user.surname
+            email: user.email || '',
+            firstname: user.firstname || '',
+            surname: user.surname || ''
         };
         res.locals.user = req.user;
 
