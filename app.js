@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const userModel = require("./models/user");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -31,6 +32,18 @@ app.use(express.static(path.join(__dirname, 'public'), {
     }
 }));
 app.use(cookieParser());
+
+// Session configuration
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // Set to true if using HTTPS
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -130,13 +143,14 @@ mongoose.connection.once('connected', () => {
 
 // Middleware to make user available to all views and check authentication
 app.use(async (req, res, next) => {
-    const token = req.cookies.token;
-    if (token) {
-        try {
+    try {
+        const token = req.cookies.token;
+        if (token) {
             const decoded = jwt.verify(token, process.env.JWT_SECRET || "shhhhhhhhhh");
             const user = await userModel.findById(decoded.id);
             
             if (user) {
+                req.session.userId = user._id;
                 res.locals.user = {
                     _id: user._id,
                     email: user.email || '',
@@ -146,32 +160,25 @@ app.use(async (req, res, next) => {
                 };
                 req.user = res.locals.user;
             } else {
-                res.clearCookie("token", {
-                    httpOnly: true,
-                    secure: false,
-                    sameSite: 'strict',
-                    path: '/',
-                    expires: new Date(0)
-                });
+                res.clearCookie("token");
+                req.session.userId = null;
                 res.locals.user = null;
                 req.user = null;
             }
-        } catch (err) {
-            res.clearCookie("token", {
-                httpOnly: true,
-                secure: false,
-                sameSite: 'strict',
-                path: '/',
-                expires: new Date(0)
-            });
+        } else {
+            req.session.userId = null;
             res.locals.user = null;
             req.user = null;
         }
-    } else {
+        next();
+    } catch (error) {
+        console.error('Auth middleware error:', error);
+        res.clearCookie("token");
+        req.session.userId = null;
         res.locals.user = null;
         req.user = null;
+        next();
     }
-    next();
 });
 
 // Middleware to check JWT authentication for protected routes
@@ -407,6 +414,9 @@ app.post("/login", async (req, res) => {
             });
         }
 
+        // Set session
+        req.session.userId = user._id;
+
         const token = jwt.sign(
             { 
                 email: user.email,
@@ -418,7 +428,7 @@ app.post("/login", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false, // Set to false for localhost
+            secure: false,
             sameSite: 'strict',
             path: '/',
             maxAge: 24 * 60 * 60 * 1000 // 24 hours
@@ -427,7 +437,7 @@ app.post("/login", async (req, res) => {
         res.redirect('/dashboard');
         
     } catch (err) {
-        console.error(err);
+        console.error('Login error:', err);
         res.render('login', { 
             error: 'An error occurred. Please try again.',
             email: req.body.email
@@ -439,7 +449,7 @@ app.post("/login", async (req, res) => {
 
 
 app.get("/logout", (req, res) => {
-    // Clear the token cookie with all security options
+    // Clear the token cookie
     res.clearCookie("token", {
         httpOnly: true,
         secure: false,
@@ -448,26 +458,18 @@ app.get("/logout", (req, res) => {
         expires: new Date(0)
     });
 
-    // Clear all session data
+    // Clear session
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+        }
+    });
+
+    // Clear user data
     res.locals.user = null;
     req.user = null;
     
-    // Set cache control headers to prevent caching
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-    
-    // Send a response that forces a complete page reload
-    res.status(200).send(`
-        <script>
-            // Clear all cookies
-            document.cookie.split(";").forEach(function(c) { 
-                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-            });
-            // Force a complete page reload
-            window.location.href = "/";
-        </script>
-    `);
+    res.redirect('/');
 });
 
 // Crop routes
