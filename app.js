@@ -176,7 +176,7 @@ app.use(async (req, res, next) => {
 
 // Middleware to check JWT authentication for protected routes
 const checkAuth = (req, res, next) => {
-    if (!req.user) {
+    if (!req.session.userId) {
         return res.redirect('/login');
     }
     next();
@@ -473,8 +473,8 @@ app.get("/logout", (req, res) => {
 // Crop routes
 app.get('/api/crops', checkAuth, async (req, res) => {
     try {
-        console.log('Fetching crops for user:', req.user._id);
-        const crops = await Crop.find({ userId: req.user._id });
+        console.log('Fetching crops for user:', req.session.userId);
+        const crops = await Crop.find({ userId: req.session.userId });
         console.log('Found crops:', crops);
         res.json(crops);
     } catch (error) {
@@ -489,7 +489,7 @@ app.get('/api/crops', checkAuth, async (req, res) => {
 app.post('/api/crops', checkAuth, async (req, res) => {
     try {
         console.log('Received crop data:', req.body);
-        console.log('User ID:', req.user._id);
+        console.log('User ID:', req.session.userId);
 
         const crop = new Crop({
             name: req.body.name,
@@ -500,7 +500,7 @@ app.post('/api/crops', checkAuth, async (req, res) => {
             location: req.body.location || 'Default Location',
             status: 'Growing',
             health: 85,
-            userId: req.user._id,
+            userId: req.session.userId,
             healthStatus: 'healthy'
         });
         
@@ -522,7 +522,7 @@ app.delete('/api/crops/:id', checkAuth, async (req, res) => {
     try {
         const crop = await Crop.findOne({ 
             _id: req.params.id, 
-            userId: req.user._id 
+            userId: req.session.userId 
         });
         
         if (!crop) {
