@@ -36,7 +36,7 @@ const upload = multer({
   });
 
 // Improved MongoDB connection with auto-reconnect
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://sonughosh0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://Sonu0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
@@ -54,7 +54,7 @@ mongoose.connection.on('connected', () => {
 mongoose.connection.on('disconnected', () => {
     console.log('MongoDB connection lost, attempting to reconnect...');
     setTimeout(() => {
-        mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://sonughosh0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
+        mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://Sonu0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
