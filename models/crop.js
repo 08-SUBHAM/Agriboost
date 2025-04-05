@@ -13,6 +13,14 @@ const cropSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    harvestDate: {
+        type: Date,
+        required: true
+    },
+    fieldSize: {
+        type: Number,
+        required: true
+    },
     location: {
         type: String,
         required: true
@@ -20,7 +28,8 @@ const cropSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['Growing', 'Harvested', 'Dormant']
+        enum: ['Growing', 'Harvested', 'Dormant'],
+        default: 'Growing'
     },
     health: {
         type: Number,
@@ -31,14 +40,6 @@ const cropSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
-    },
-    harvestDate: {
-        type: Date,
-        required: true
-    },
-    fieldSize: {
-        type: Number,
         required: true
     },
     healthStatus: {

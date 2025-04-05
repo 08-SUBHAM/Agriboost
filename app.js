@@ -14,6 +14,8 @@ const Scheme = require('./models/scheme');
 const cheerio = require('cheerio');
 const webpush = require('web-push');
 const Subscription = require('./models/subscription');
+const fs = require('fs');
+const cloudinary = require('cloudinary');
 
 // Import forum routes
 const forumRoutes = require('./routes/forum');
@@ -35,16 +37,16 @@ const upload = multer({
     limits: { fileSize: 2 * 1024 * 1024 } // 2MB limit
   });
 
-// Improved MongoDB connection with auto-reconnect
+ // Improved MongoDB connection with auto-reconnect
 mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://Sonu0810:sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
 .then(() => console.log('Connected to MongoDB Atlas'))
-.catch(err => {
+ .catch(err => {
     console.error('MongoDB connection error:', err);
     // Don't exit, let the app continue without DB
-});
+ });
 
 // Event listeners for connection status
 mongoose.connection.on('connected', () => {
@@ -181,8 +183,39 @@ const checkAuth = (req, res, next) => {
 };
 
 // Routes
-app.get('/', (req, res) => {
-    res.render('home', { user: res.locals.user });
+app.get('/', async (req, res) => {
+    try {
+        // Get user data if logged in
+        let user = null;
+        if (req.session.userId) {
+            user = await userModel.findById(req.session.userId);
+        }
+
+        // Get latest news
+        const news = await News.find()
+            .sort({ date: -1 })
+            .limit(3);
+
+        // Get latest schemes
+        const schemes = await Scheme.find()
+            .sort({ date: -1 })
+            .limit(3);
+
+        res.render('home', {
+            user: user,
+            news: news || [],
+            schemes: schemes || [],
+            isAuthenticated: !!req.session.userId
+        });
+    } catch (error) {
+        console.error('Error in home route:', error);
+        res.render('home', {
+            user: null,
+            news: [],
+            schemes: [],
+            isAuthenticated: false
+        });
+    }
 });
 
 app.get('/about', (req, res) => {
@@ -246,119 +279,82 @@ app.get('/profile', checkAuth, async (req, res) => {
             return res.redirect('/login');
         }
         res.render('profile', { 
-            user: {
-                _id: user._id,
-                email: user.email || '',
-                firstname: user.firstname || '',
-                surname: user.surname || '',
-                profilePicture: user.profilePicture || ''
-            },
-            activeTab: req.query.tab || 'general' // Default to general tab
+            user: user,
+            activeTab: req.query.tab || 'general'
         });
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error('Error in profile route:', error);
         res.redirect('/login');
     }
 });
 
-app.post('/profile', checkAuth, upload.single('profilePicture'), async (req, res) => {
+app.post('/profile/update', checkAuth, upload.single('profilePicture'), async (req, res) => {
     try {
-        const user = await userModel.findById(req.user.id);
-
-        const updates = {
-            firstname: req.body.firstname,
-            surname: req.body.surname,
-            email: req.body.email,
-            company: req.body.company,
-            bio: req.body.bio,
-            birthday: req.body.birthday,
-            country: req.body.country,
-            phone: req.body.phone,
-            website: req.body.website,
-            socialLinks: {
-                twitter: req.body.twitter,
-                facebook: req.body.facebook,
-                instagram: req.body.instagram,
-                linkedin: req.body.linkedin
-            },
-            notifications: {
-                articleComments: req.body.articleComments === 'on',
-                forumAnswers: req.body.forumAnswers === 'on',
-                follows: req.body.follows === 'on',
-                announcements: req.body.announcements === 'on',
-                productUpdates: req.body.productUpdates === 'on',
-                blogDigest: req.body.blogDigest === 'on'
-            }
-        };
-
-        // Handle password update if requested
-        if (req.body.currentPassword && req.body.newPassword && req.body.confirmPassword) {
-            // Verify current password
-            const isMatch = await bcrypt.compare(req.body.currentPassword, user.password);
-            if (!isMatch) {
-                return res.render('profile', {
-                    user,
-                    error: 'Current password is incorrect',
-                    activeTab: 'change-password'
-                });
-            }
-
-            // Check if new passwords match
-            if (req.body.newPassword !== req.body.confirmPassword) {
-                return res.render('profile', {
-                    user,
-                    error: 'New passwords do not match',
-                    activeTab: 'change-password'
-                });
-            }
-
-            // Hash new password
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(req.body.newPassword, salt);
-            updates.password = hashedPassword;
+        const userId = req.user._id;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Not authenticated' });
         }
 
-        // Handle file upload if present
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Update basic info
+        user.firstname = req.body.firstname || user.firstname;
+        user.surname = req.body.surname || user.surname;
+        user.email = req.body.email || user.email;
+        user.phone = req.body.phone || user.phone;
+        user.address = req.body.address || user.address;
+
+        // Handle profile picture upload
         if (req.file) {
-            updates.profilePicture = {
-                data: req.file.buffer,
-                contentType: req.file.mimetype
-            };
+            // Delete old profile picture if exists
+            if (user.profilePicture) {
+                try {
+                    await cloudinary.uploader.destroy(user.profilePicture);
+                } catch (error) {
+                    console.error('Error deleting old profile picture:', error);
+                }
+            }
+
+            // Upload new profile picture
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'profile_pictures',
+                transformation: [
+                    { width: 200, height: 200, crop: 'fill' },
+                    { quality: 'auto' }
+                ]
+            });
+
+            user.profilePicture = result.public_id;
         }
 
-        // Update user and get the updated document
-        const updatedUser = await userModel.findByIdAndUpdate(
-            req.user.id,
-            updates,
-            { new: true } // This returns the updated document
-        );
+        await user.save();
 
-        // Refresh the token with updated user data
-        const newToken = jwt.sign(
-            { 
-                email: updatedUser.email,
-                id: updatedUser._id 
-            }, 
-            process.env.JWT_SECRET || "shhhhhhhhhh"
-        );
+        // Clean up uploaded file
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
 
-        // Set the new cookie with consistent settings
-        res.cookie("token", newToken, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'strict',
-            path: '/',
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        res.json({ 
+            success: true, 
+            message: 'Profile updated successfully',
+            user: {
+                firstname: user.firstname,
+                surname: user.surname,
+                email: user.email,
+                phone: user.phone,
+                address: user.address,
+                profilePicture: user.profilePicture ? cloudinary.url(user.profilePicture) : null
+            }
         });
-        
-        // Single redirect with success message
-        res.redirect('/profile?tab=' + (req.body.activeTab || 'general') + '&success=Profile+updated+successfully');
-        
-    } catch (err) {
-        res.render('profile', { 
-            user: req.user,
-            error: 'Error updating profile: ' + err.message,
-            activeTab: req.body.activeTab || 'general'
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error updating profile',
+            error: error.message 
         });
     }
 });
@@ -474,72 +470,73 @@ app.get("/logout", (req, res) => {
     `);
 });
 
-// Get all crops for the logged-in user
+// Crop routes
 app.get('/api/crops', checkAuth, async (req, res) => {
     try {
-        const crops = await Crop.find({ userId: req.user.id });
+        console.log('Fetching crops for user:', req.user._id);
+        const crops = await Crop.find({ userId: req.user._id });
+        console.log('Found crops:', crops);
         res.json(crops);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch crops' });
+        console.error('Error fetching crops:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch crops',
+            details: error.message 
+        });
     }
 });
 
-// Add a new crop
 app.post('/api/crops', checkAuth, async (req, res) => {
     try {
+        console.log('Received crop data:', req.body);
+        console.log('User ID:', req.user._id);
+
         const crop = new Crop({
             name: req.body.name,
             type: req.body.type,
-            plantingDate: req.body.plantingDate,
-            harvestDate: req.body.harvestDate,
-            fieldSize: req.body.fieldSize,
+            plantingDate: new Date(req.body.plantingDate),
+            harvestDate: new Date(req.body.harvestDate),
+            fieldSize: parseFloat(req.body.fieldSize),
             location: req.body.location || 'Default Location',
             status: 'Growing',
-            health: req.body.health || 85,
-            userId: req.user.id
+            health: 85,
+            userId: req.user._id,
+            healthStatus: 'healthy'
         });
         
+        console.log('Created crop object:', crop);
         const savedCrop = await crop.save();
-        res.json(savedCrop);
+        console.log('Saved crop:', savedCrop);
+        
+        res.status(201).json(savedCrop);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to add crop', details: error.message });
+        console.error('Error adding crop:', error);
+        res.status(500).json({ 
+            error: 'Failed to add crop', 
+            details: error.message 
+        });
     }
 });
 
-// Update crop health
-app.put('/api/crops/:id/health', checkAuth, async (req, res) => {
-    try {
-        const crop = await Crop.findOne({ _id: req.params.id, userId: req.user.id });
-        if (!crop) {
-            return res.status(404).json({ error: 'Crop not found' });
-        }
-
-        crop.health = req.body.health;
-        await crop.save();
-        res.json(crop);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update crop health' });
-    }
-});
-
-// Delete a crop
 app.delete('/api/crops/:id', checkAuth, async (req, res) => {
     try {
-        const crop = await Crop.findOne({ _id: req.params.id, userId: req.user.id });
+        const crop = await Crop.findOne({ 
+            _id: req.params.id, 
+            userId: req.user._id 
+        });
         
         if (!crop) {
             return res.status(404).json({ error: 'Crop not found' });
         }
-
-        // Check if the crop belongs to the user
-        if (crop.userId.toString() !== req.user.id.toString()) {
-            return res.status(403).json({ error: 'Not authorized to delete this crop' });
-        }
-
-        await crop.deleteOne();
+        
+        await crop.remove();
         res.json({ message: 'Crop deleted successfully' });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to delete crop', details: error.message });
+        console.error('Error deleting crop:', error);
+        res.status(500).json({ 
+            error: 'Failed to delete crop',
+            details: error.message 
+        });
     }
 });
 
@@ -662,96 +659,143 @@ app.post('/api/detect-disease', checkAuth, upload.single('image'), async (req, r
 });
 
 // Function to fetch and store news
-async function fetchAndStoreNews() {
-    try {
-        const sources = [
-            {
-                url: 'https://www.agweb.com/news',
-                category: 'news',
-                selector: {
-                    article: 'article',
-                    title: 'h2',
-                    description: 'p',
-                    image: 'img',
-                    link: 'a',
-                    date: 'time'
-                }
-            }
-        ];
-
-        for (const source of sources) {
-            try {
-                console.log(`Fetching news from ${source.url}...`);
-                const response = await axios.get(source.url, {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                    },
-                    timeout: 10000
-                });
-
-                const $ = cheerio.load(response.data);
-                const articles = [];
-
-                $(source.selector.article).each((i, element) => {
-                    try {
-                        const title = $(element).find(source.selector.title).text().trim();
-                        const description = $(element).find(source.selector.description).text().trim();
-                        let imageUrl = $(element).find(source.selector.image).attr('src');
-                        const link = $(element).find(source.selector.link).attr('href');
-                        const date = $(element).find(source.selector.date).text().trim();
-
-                        // Handle relative image URLs
-                        if (imageUrl && !imageUrl.startsWith('http')) {
-                            const baseUrl = new URL(source.url).origin;
-                            imageUrl = new URL(imageUrl, baseUrl).href;
-                        }
-
-                        // Handle relative links
-                        if (link && !link.startsWith('http')) {
-                            const baseUrl = new URL(source.url).origin;
-                            link = new URL(link, baseUrl).href;
-                        }
-
-                        if (title && description) {
-                            articles.push({
-                                title,
-                                description,
-                                imageUrl: imageUrl || null,
-                                url: link,
-                                category: source.category,
-                                source: new URL(source.url).hostname,
-                                publishedAt: new Date(date || Date.now())
-                            });
-                        }
-                    } catch (articleError) {
-                        console.error('Error processing article:', articleError);
-                    }
-                });
-
-                console.log(`Found ${articles.length} articles from ${source.url}`);
-
-                // Store articles in database
-                for (const article of articles) {
-                    try {
-                        await News.findOneAndUpdate(
-                            { title: article.title },
-                            article,
-                            { upsert: true, new: true }
-                        );
-                    } catch (dbError) {
-                        console.error('Error storing article:', dbError);
-                    }
-                }
-
-                // Add delay between requests to avoid overwhelming the server
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            } catch (error) {
-                console.error(`Error fetching from ${source.url}:`, error);
-            }
+const sources = [
+    {
+        url: 'https://www.agriculture.com/news',
+        category: 'news',
+        selector: {
+            article: '.article-card',
+            title: '.article-title',
+            description: '.article-excerpt',
+            image: 'img',
+            link: 'a',
+            date: '.article-date'
         }
-    } catch (error) {
-        console.error('Error in fetchAndStoreNews:', error);
+    },
+    {
+        url: 'https://www.farmprogress.com/crop-production',
+        category: 'news',
+        selector: {
+            article: 'article',
+            title: 'h2',
+            description: 'p',
+            image: 'img',
+            link: 'a',
+            date: 'time'
+        }
     }
+];
+
+async function fetchAndStoreNews() {
+    console.log('Performing initial news fetch...');
+    
+    // Add some sample news articles as fallback
+    const sampleArticles = [
+        {
+            title: "New Agricultural Technology Trends",
+            description: "Discover the latest innovations in farming technology and how they're revolutionizing agriculture.",
+            image: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9",
+            link: "#",
+            date: new Date().toISOString(),
+            source: "AgriBoost News",
+            category: "Technology"
+        },
+        {
+            title: "Sustainable Farming Practices",
+            description: "Learn about eco-friendly farming methods that help protect the environment while maintaining productivity.",
+            image: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9",
+            link: "#",
+            date: new Date().toISOString(),
+            source: "AgriBoost News",
+            category: "Sustainability"
+        },
+        {
+            title: "Market Updates for Farmers",
+            description: "Stay informed about current market trends and prices for various agricultural commodities.",
+            image: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9",
+            link: "#",
+            date: new Date().toISOString(),
+            source: "AgriBoost News",
+            category: "Market"
+        }
+    ];
+
+    // Store sample articles first
+    for (const article of sampleArticles) {
+        try {
+            await News.findOneAndUpdate(
+                { title: article.title },
+                article,
+                { upsert: true, new: true }
+            );
+        } catch (dbError) {
+            console.error('Error storing sample article:', dbError);
+        }
+    }
+    
+    // Try to fetch from external sources
+    for (const source of sources) {
+        try {
+            console.log(`Fetching news from ${source.url}...`);
+            const response = await axios.get(source.url, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.5',
+                    'Connection': 'keep-alive',
+                    'Upgrade-Insecure-Requests': '1'
+                },
+                timeout: 10000 // 10 second timeout
+            });
+            
+            const $ = cheerio.load(response.data);
+            const articles = [];
+            
+            $(source.selector.article).each((i, element) => {
+                try {
+                    const title = $(element).find(source.selector.title).text().trim();
+                    const description = $(element).find(source.selector.description).text().trim();
+                    const image = $(element).find(source.selector.image).attr('src');
+                    const link = $(element).find(source.selector.link).attr('href');
+                    const date = $(element).find(source.selector.date).text().trim();
+                    
+                    if (title && description) {
+                        articles.push({
+                            title,
+                            description,
+                            image: image || 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9',
+                            link: link || '#',
+                            date: date || new Date().toISOString(),
+                            source: source.url,
+                            category: source.category
+                        });
+                    }
+                } catch (articleError) {
+                    console.error('Error processing article:', articleError);
+                }
+            });
+            
+            console.log(`Found ${articles.length} articles from ${source.url}`);
+            
+            // Store articles in database
+            for (const article of articles) {
+                try {
+                    await News.findOneAndUpdate(
+                        { title: article.title, source: article.source },
+                        article,
+                        { upsert: true, new: true }
+                    );
+                } catch (dbError) {
+                    console.error('Error storing article:', dbError);
+                }
+            }
+        } catch (error) {
+            console.error(`Error fetching from ${source.url}:`, error.message);
+            // Continue with next source
+        }
+    }
+    
+    console.log('Initial news fetch completed');
 }
 
 // Schedule news and scheme updates
