@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBoost dashboard</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#00a86b">
+    <meta name="description" content="Your agricultural companion for smart farming">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/images/icons/icon-152x152.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="AgriBoost">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'agri-green': '#00a86b',
+                        'agri-dark': '#007350',
+                        'agri-light': '#e0f2ec',
+                        'agri-gold': '#ffc72c',
+                    }
+                }
+            }
+        }
+
+         const API_KEY = "ce5102271f5d2cc57840d7142542ea69";
+     </script>
+
+    <% 
+    // Initialize variables with default empty arrays if not provided
+    const localSchemes = typeof schemes !== 'undefined' ? schemes : [];
+    const articles = typeof newsArticles !== 'undefined' ? newsArticles : [];
+    %>
+
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+                height: 100vh;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <!-- Mobile Menu Button -->
+    <button id="menuToggle" class="md:hidden fixed top-4 left-4 z-50 bg-agri-green text-white p-2 rounded-lg shadow-lg">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar bg-white w-64 border-r border-gray-200 fixed h-full flex flex-col">
+        <!-- Logo -->
+        <div class="p-6 flex items-center space-x-3">
+            <a href="/" class="flex items-center">
+                <img src="/images/logo.png" alt="Website Logo" class="h-10 w-auto">
+        </a>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 space-y-1">
+            <a href="#" data-target="dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-agri-light text-agri-green font-medium">
+                <i class="fas fa-chart-pie text-lg"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" data-target="crops" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-agri-light text-gray-600 hover:text-agri-green transition">
+                <i class="fas fa-seedling text-lg"></i>
+                <span>My Crops</span>
+            </a>
+            <a href="#" data-target="weather" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-agri-light text-gray-600 hover:text-agri-green transition">
+                <i class="fas fa-tint text-lg"></i>
+                <span>Weather</span>
+            </a>
+            <a href="#" data-target="news" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-agri-light text-gray-600 hover:text-agri-green transition">
+                <i class="fas fa-newspaper text-lg"></i>
+                <span>News</span>
+            </a>
+            <a href="#" data-target="forum" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-agri-light text-gray-600 hover:text-agri-green transition">
+                <i class="fas fa-comments text-lg"></i>
+                <span>Forum</span>
+            </a>
+        </nav>
+
+        <!-- Logout -->
+        <div class="mt-auto p-4">
+            <a href="/logout" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors">
+              <i class="fas fa-sign-out-alt mr-2"></i>
+              Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-64 transition-all duration-300">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Welcome back!</h1>
+                    <p class="text-gray-600">Monitor your farm activities</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="relative p-2 text-gray-500 hover:text-agri-green">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="w-px h-8 bg-gray-200"></div>
+                    <div class="flex items-center space-x-2">
+                        <a href="/profile" class="flex items-center">
+                            <% if (user && user.profilePicture && user.profilePicture.data) { %>
+                                <img src="data:<%= user.profilePicture.contentType %>;base64,<%= user.profilePicture.data.toString('base64') %>" 
+                                     alt="Profile Picture" 
+                                     class="h-8 w-8 rounded-full object-cover">
+                            <% } else { %>
+                                <div class="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-sm font-bold text-purple-600">
+                                    <%= user.firstname.charAt(0).toUpperCase() %><%= user.surname.charAt(0).toUpperCase() %>
+                                </div>
+                            <% } %>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main id="dashboard-content" class="tab-content active max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-agri-green">
+                    <p class="text-sm font-medium text-gray-500">Expected Revenue</p>
+                    <p class="text-2xl font-bold mt-1">₹1,50,000</p>
+                    <p class="text-xs text-green-600 mt-2"><i class="fas fa-arrow-up mr-1"></i> 12% from last season</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-agri-gold">
+                    <p class="text-sm font-medium text-gray-500">Current Crops</p>
+                    <p class="text-2xl font-bold mt-1">2 Active</p>
+                    <p class="text-xs text-gray-500 mt-2">Wheat & Basmati</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
+                    <p class="text-sm font-medium text-gray-500">Irrigation Due</p>
+                    <p class="text-2xl font-bold mt-1">Tomorrow</p>
+                    <p class="text-xs text-gray-500 mt-2">North Field</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-purple-500">
+                    <p class="text-sm font-medium text-gray-500">Govt Subsidy</p>
+                    <p class="text-2xl font-bold mt-1">₹15,000</p>
+                    <p class="text-xs text-gray-500 mt-2">PM Kisan Scheme</p>
+                </div>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Crop Health -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Crop Health Monitoring</h2>
+                        <a href="#" class="text-sm text-agri-green font-medium" onclick="document.querySelector('[data-target=\'crops\']').click()">View All</a>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="dashboard-crops">
+                        <!-- Crops will be dynamically added here -->
+                        <div class="text-center py-8 text-gray-500" id="no-dashboard-crops">
+                            <i class="fas fa-seedling text-4xl mb-4"></i>
+                            <p class="text-lg">No crops added yet</p>
+                            <button onclick="document.querySelector('[data-target=\'crops\']').click()" class="mt-4 text-agri-green hover:text-agri-dark">
+                                Add Your First Crop
+                            </button>
+                                </div>
+                    </div>
+                </div>
+
+                <!-- Weather Widget -->
+                <div class="bg-gradient-to-br from-agri-green to-agri-dark rounded-xl shadow-sm p-6 text-white" id="agri-weather-widget">
+                    <!-- Current Weather Section -->
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <h2 class="text-lg font-semibold">Current Weather</h2>
+                        <p class="text-sm" id="agri-weather-location">Detecting location...</p>
+                      </div>
+                      <i class="fas fa-cloud text-3xl" id="agri-weather-icon"></i>
+                    </div>
+                    
+                    <!-- Main Weather Data -->
+                    <div class="mt-6 flex items-center justify-between">
+                      <div class="text-4xl font-bold" id="agri-weather-temp">--°C</div>
+                      <div class="text-right">
+                        <p id="agri-weather-desc">--</p>
+                        <p class="text-sm">
+                          <span id="agri-feels-like">Feels like: --°</span> • 
+                          <span id="agri-humidity">Humidity: --%</span> • 
+                          <span id="agri-wind">Wind: -- m/s</span>
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <!-- Forecast Section -->
+                    <div class="mt-6 pt-4 border-t border-white/20">
+                      <h3 class="text-sm font-medium mb-2">Next 24 Hours</h3>
+                      <div class="grid grid-cols-4 gap-2" id="agri-weather-forecast">
+                        <!-- Forecast items will be inserted here by JavaScript -->
+                        <div class="text-center p-1">
+                          <div class="text-xs">--:--</div>
+                          <i class="fas fa-question text-lg my-1 opacity-50"></i>
+                          <div class="text-sm font-medium">--°</div>
+                        </div>
+                        <!-- Repeat 3 more times -->
+                        <div class="text-center p-1">
+                          <div class="text-xs">--:--</div>
+                          <i class="fas fa-question text-lg my-1 opacity-50"></i>
+                          <div class="text-sm font-medium">--°</div>
+                        </div>
+                        <div class="text-center p-1">
+                          <div class="text-xs">--:--</div>
+                          <i class="fas fa-question text-lg my-1 opacity-50"></i>
+                          <div class="text-sm font-medium">--°</div>
+                        </div>
+                        <div class="text-center p-1">
+                          <div class="text-xs">--:--</div>
+                          <i class="fas fa-question text-lg my-1 opacity-50"></i>
+                          <div class="text-sm font-medium">--°</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Load the weather widget JS -->
+                  <script src="/javascripts/weatherWidget.js"></script>
+                
+                <!-- Tasks -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Upcoming Tasks</h2>
+                        <a href="#" class="text-sm text-agri-green font-medium">View All</a>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="p-2 bg-red-100 rounded-lg mr-3">
+                                <i class="fas fa-exclamation text-red-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-medium">Pesticide Application</h3>
+                                <p class="text-sm text-gray-500">Due tomorrow for Wheat field</p>
+                            </div>
+                            <button class="text-agri-green">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="p-2 bg-blue-100 rounded-lg mr-3">
+                                <i class="fas fa-tint text-blue-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-medium">Irrigation Cycle</h3>
+                                <p class="text-sm text-gray-500">Scheduled for Friday</p>
+                            </div>
+                            <button class="text-agri-green">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="p-2 bg-yellow-100 rounded-lg mr-3">
+                                <i class="fas fa-truck text-yellow-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-medium">Fertilizer Delivery</h3>
+                                <p class="text-sm text-gray-500">Expected Monday</p>
+                            </div>
+                            <button class="text-agri-green">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Government Schemes -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Government Schemes</h2>
+                        <a href="#" class="text-sm text-agri-green font-medium">View All</a>
+                    </div>
+                    <div class="space-y-4">
+                        <% if (localSchemes && localSchemes.length > 0) { %>
+                            <% localSchemes.forEach(scheme => { %>
+                        <div class="p-4 bg-agri-light rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <div class="p-2 bg-white rounded-lg mr-3 shadow-sm">
+                                    <i class="fas fa-hand-holding-usd text-agri-green"></i>
+                                </div>
+                                        <h3 class="font-medium"><%= scheme.name %></h3>
+                            </div>
+                                    <p class="text-sm text-gray-600">Next installment of <%= scheme.amount %> expected by <%= scheme.date %></p>
+                            <div class="mt-3 flex justify-between items-center">
+                                <span class="text-xs px-2 py-1 bg-white rounded-full">Active</span>
+                                <a href="#" class="text-sm text-agri-green font-medium">View Details</a>
+                            </div>
+                        </div>
+                            <% }); %>
+                        <% } else { %>
+                            <p class="text-gray-500 text-center">No government schemes available.</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Advisory -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Farm Advisory</h2>
+                        <a href="#" class="text-sm text-agri-green font-medium">View All</a>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-start p-4 bg-yellow-50 rounded-lg border-l-4 border-agri-gold">
+                            <div class="p-2 bg-white rounded-lg mr-3 shadow-sm">
+                                <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium">Pest Alert</h3>
+                                <p class="text-sm text-gray-600 mt-1">Increased locust activity reported in neighboring districts. Monitor your crops closely.</p>
+                                <p class="text-xs text-gray-500 mt-2">Updated: 2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                            <div class="p-2 bg-white rounded-lg mr-3 shadow-sm">
+                                <i class="fas fa-cloud-rain text-blue-500"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium">Weather Advisory</h3>
+                                <p class="text-sm text-gray-600 mt-1">Rain expected in 3 days. Schedule irrigation accordingly.</p>
+                                <p class="text-xs text-gray-500 mt-2">Updated: Yesterday</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Weather Content -->
+        <main id="weather-content" class="tab-content max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Weather Forecast</h2>
+                    <button id="refresh-weather" class="text-agri-green hover:text-agri-dark">
+                        <i class="fas fa-sync-alt mr-1"></i> Refresh
+                    </button>
+                </div>
+                
+                <!-- Current Weather Card -->
+                <div class="bg-gradient-to-br from-agri-green to-agri-dark rounded-xl shadow-sm p-6 text-white mb-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 opacity-20">
+                        <i id="current-weather-icon" class="fas fa-cloud-sun text-[120px]"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-lg font-semibold">Current Weather</h3>
+                                <p class="text-sm" id="weather-location">Detecting location...</p>
+                            </div>
+                            <div class="text-right">
+                                <p id="current-date" class="text-sm">--</p>
+                                <p id="current-time" class="text-2xl font-mono">--:--</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between">
+                            <div class="text-6xl font-bold" id="current-temp">--°C</div>
+                            <div class="text-right">
+                                <p id="weather-description" class="text-lg capitalize">--</p>
+                                <p class="text-sm" id="weather-details">Feels like: --° • Humidity: --%</p>
+                                <p class="text-sm" id="wind-details">Wind: -- km/h • -- direction</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Hourly Forecast -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-3">Next 24 Hours</h3>
+                    <div class="flex overflow-x-auto pb-2 -mx-2 px-2" id="hourly-forecast">
+                        <div class="text-center px-3 py-2 bg-gray-100 rounded-lg mx-1 min-w-[70px]">
+                            <p class="text-sm">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 7-Day Forecast -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-3">7-Day Forecast</h3>
+                    <div class="space-y-3" id="daily-forecast">
+                        <div class="flex items-center justify-between p-3 border rounded-lg">
+                            <p class="w-24">Loading...</p>
+                            <div class="w-32">
+                                <div class="flex justify-between text-sm">
+                                    <span>--°</span>
+                                    <span>--°</span>
+                                </div>
+                            </div>
+                            <p class="text-sm w-16 text-right">--%</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Agricultural Advisory -->
+                <div class="bg-white border rounded-xl p-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fas fa-tractor text-agri-green mr-2"></i>
+                        Agricultural Advisory
+                    </h3>
+                    <div id="agri-advisory">
+                        <div class="flex items-start p-4 bg-blue-50 rounded-lg mb-3 border-l-4 border-blue-500">
+                            <i class="fas fa-cloud-rain text-blue-500 mr-3 text-xl mt-1"></i>
+                            <div>
+                                <p class="font-medium">Analyzing conditions...</p>
+                                <p class="text-sm text-gray-600 mt-1">Preparing personalized recommendations</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Crops Content -->
+        <main id="crops-content" class="tab-content max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">My Crops</h2>
+                    <button onclick="openAddCropModal()" class="bg-agri-green text-white px-4 py-2 rounded-md hover:bg-green-700">
+                        <i class="fas fa-plus mr-2"></i> Add Crop
+                    </button>
+                </div>
+        
+                <!-- Crops List Container -->
+                <div id="crops-list">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-12 text-gray-500" id="no-crops-message">
+                        <i class="fas fa-seedling text-4xl mb-4"></i>
+                        <p class="text-xl">No crops added yet</p>
+                        <button onclick="openAddCropModal()" class="mt-4 bg-agri-green text-white px-4 py-2 rounded-md hover:bg-green-700">
+                            Add Your First Crop
+                        </button>
+                    </div>
+                </div>
+        
+                <!-- Add Crop Modal -->
+                <div id="add-crop-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-gray-900">Add New Crop</h3>
+                            <button onclick="closeAddCropModal()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <form id="add-crop-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Crop Name</label>
+                                <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Crop Type</label>
+                                <select name="type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green">
+                                    <option value="">Select crop type</option>
+                                    <option value="Wheat">Wheat</option>
+                                    <option value="Rice">Rice</option>
+                                    <option value="Corn">Corn</option>
+                                    <option value="Cotton">Cotton</option>
+                                    <option value="Sugarcane">Sugarcane</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Planting Date</label>
+                                    <input type="date" name="plantingDate" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Expected Harvest Date</label>
+                                    <input type="date" name="harvestDate" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Field Size (acres)</label>
+                                <input type="number" name="fieldSize" required min="0" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                <input type="text" name="location" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green">
+                            </div>
+                            
+                            <div class="flex justify-end space-x-3 mt-6">
+                                <button type="button" onclick="closeAddCropModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="px-4 py-2 bg-agri-green text-white rounded-md hover:bg-agri-dark">
+                                    Add Crop
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+        
+                <!-- Disease Detection Modal -->
+                <div id="disease-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-gray-900">Disease Detection</h3>
+                            <button onclick="closeDiseaseModal()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- Image Upload Section -->
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-agri-green transition-colors">
+                                <div id="upload-preview" class="hidden mb-4">
+                                    <img id="preview-image" src="" alt="Preview" class="max-h-64 mx-auto rounded-lg shadow-md">
+                                    <button onclick="analyzeDisease()" class="mt-4 px-4 py-2 bg-agri-green text-white rounded-md hover:bg-agri-dark">
+                                        <i class="fas fa-search mr-2"></i> Analyze Image
+                                    </button>
+                                </div>
+                                <div id="upload-prompt">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-agri-green mb-3"></i>
+                                    <p class="font-medium text-lg">Upload Crop Image</p>
+                                    <p class="text-sm text-gray-500 mt-1">JPG, PNG (Max 2MB)</p>
+                                    <input type="file" id="disease-image" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                                    <button onclick="document.getElementById('disease-image').click()" class="mt-4 px-6 py-3 bg-agri-green text-white rounded-md hover:bg-agri-dark transition-colors">
+                                        <i class="fas fa-upload mr-2"></i> Choose Image
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Analysis Results Section -->
+                            <div id="analysis-results" class="hidden">
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h4 class="font-medium text-gray-900 mb-4 text-lg">Analysis Results</h4>
+                                    <div id="disease-details" class="space-y-4">
+                                        <!-- Results will be populated by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Loading State -->
+                            <div id="analysis-loading" class="hidden text-center py-8">
+                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-agri-green mx-auto"></div>
+                                <p class="mt-4 text-gray-600">Analyzing image for diseases...</p>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button onclick="closeDiseaseModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Health Advisories Section -->
+                <div class="mt-8 bg-white border rounded-xl p-6" id="health-advisories">
+                    <h3 class="text-lg font-semibold mb-4">Crop Health Advisories</h3>
+                    <div id="advisories-list" class="space-y-4">
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="fas fa-info-circle text-2xl mb-2"></i>
+                            <p>No health advisories available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <script src="/javascripts/plant.js"></script>
+        
+        <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        </style>
+
+        <!-- News Content -->
+        <main id="news-content" class="tab-content max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Agricultural News & Updates</h2>
+                
+                <!-- Government Schemes Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <% if (typeof localSchemes !== 'undefined' && localSchemes.length > 0) { %>
+                        <% localSchemes.forEach(scheme => { %>
+                            <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800"><%= scheme.name %></h3>
+                                    <span class="text-purple-600 font-medium">₹<%= scheme.amount %></span>
+                            </div>
+                                <p class="text-gray-600 text-sm mb-3"><%= scheme.description %></p>
+                                <div class="flex items-center justify-between text-sm text-gray-500">
+                                    <span>Last Updated: <%= new Date(scheme.date).toLocaleDateString() %></span>
+                                    <a href="<%= scheme.sourceUrl %>" target="_blank" class="text-purple-600 hover:text-purple-800">Read More</a>
+                        </div>
+                        </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="col-span-full text-center text-gray-500 py-4">
+                            No government schemes available at the moment.
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- News Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <% if (typeof articles !== 'undefined' && articles.length > 0) { %>
+                        <% articles.forEach(article => { %>
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                                <div class="relative w-full h-48 bg-gray-100">
+                                    <% if (article.imageUrl && article.imageUrl.trim() !== '') { %>
+                                        <img 
+                                            src="<%= article.imageUrl %>" 
+                                            alt="<%= article.title %>" 
+                                            class="w-full h-full object-cover"
+                                            onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZWVlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';"
+                                            loading="lazy"
+                                        >
+                                    <% } else { %>
+                                        <div class="w-full h-full flex items-center justify-center">
+                                            <i class="fas fa-newspaper text-4xl text-gray-400"></i>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-2"><%= article.title %></h3>
+                                    <p class="text-gray-600 text-sm mb-3"><%= article.description %></p>
+                                    <div class="flex items-center justify-between text-sm text-gray-500">
+                                        <span><%= new Date(article.publishedAt).toLocaleDateString() %></span>
+                                        <a href="<%= article.url %>" target="_blank" class="text-purple-600 hover:text-purple-800">Read More</a>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="col-span-full text-center text-gray-500 py-4">
+                            No news articles available at the moment.
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+
+        <!-- Forum Content -->
+        <main id="forum-content" class="tab-content max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Farmers Forum</h2>
+                    <button onclick="openForumModal()" class="bg-agri-green text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        Ask a Question
+                        </button>
+                    </div>
+
+                <!-- Forum Post Modal -->
+                <div id="forum-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold">Ask a Question</h3>
+                            <button onclick="closeForumModal()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            </div>
+                        <form id="forum-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                                <input type="text" name="title" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green">
+                        </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                <select name="category" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green">
+                                    <option value="General">General</option>
+                                    <option value="Crop Management">Crop Management</option>
+                                    <option value="Weather">Weather</option>
+                                    <option value="Market">Market</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Disease Control">Disease Control</option>
+                                </select>
+                        </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Question</label>
+                                <textarea name="content" required rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green"></textarea>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" onclick="closeForumModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="px-4 py-2 bg-agri-green text-white rounded-md hover:bg-green-700">
+                                    Post Question
+                        </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Forum Filters -->
+                <div class="flex flex-wrap gap-4 mb-6">
+                    <button onclick="filterPosts('popular')" class="px-4 py-2 rounded-full bg-agri-green text-white hover:bg-green-700 transition-colors">
+                        Most Popular
+                    </button>
+                    <button onclick="filterPosts('recent')" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+                        Most Recent
+                    </button>
+                    <select onchange="filterByCategory(this.value)" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-agri-green">
+                        <option value="">All Categories</option>
+                        <option value="Crop Management">Crop Management</option>
+                        <option value="Weather">Weather</option>
+                        <option value="Market">Market</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Disease Control">Disease Control</option>
+                    </select>
+                    </div>
+
+                <!-- Forum Posts -->
+                <div id="forum-posts-container" class="space-y-6">
+                    <!-- Posts will be dynamically loaded here -->
+                </div>
+
+                <!-- Load More Button -->
+                <div class="text-center mt-8">
+                    <button onclick="loadMorePosts()" class="px-6 py-3 border border-agri-green text-agri-green rounded-lg hover:bg-agri-light transition-colors">
+                        Load More Posts
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Post Details Modal -->
+    <div id="post-details-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-lg max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold" id="post-details-title"></h3>
+                <button onclick="closePostDetails()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="post-details-content"></div>
+            
+            <!-- Reply Form -->
+            <form id="reply-form" class="mt-6 border-t pt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Your Reply</label>
+                <textarea name="content" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green"></textarea>
+                <div class="flex justify-end mt-4">
+                    <button type="submit" class="px-4 py-2 bg-agri-green text-white rounded-md hover:bg-green-700">
+                        Post Reply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Handle Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Show install button or notification
+            const installButton = document.createElement('button');
+            installButton.textContent = 'Install AgriBoost';
+            installButton.className = 'fixed bottom-4 right-4 bg-agri-green text-white px-4 py-2 rounded-lg shadow-lg';
+            installButton.onclick = () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            };
+            document.body.appendChild(installButton);
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (event) => {
+            if (window.innerWidth <= 768 && !sidebar.contains(event.target)) {
+                if (event.target !== menuToggle && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // Tab functionality
+        document.querySelectorAll('[data-target]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show selected tab content
+                const targetId = link.getAttribute('data-target') + '-content';
+                document.getElementById(targetId).classList.add('active');
+                
+                // Update active state in sidebar
+                document.querySelectorAll('[data-target]').forEach(navLink => {
+                    navLink.classList.remove('bg-agri-light', 'text-agri-green');
+                    navLink.classList.add('text-gray-600', 'hover:text-agri-green');
+                });
+                
+                link.classList.add('bg-agri-light', 'text-agri-green');
+                link.classList.remove('text-gray-600', 'hover:text-agri-green');
+            });
+        });
+
+        // Initialize first tab as active
+        document.querySelector('[data-target="dashboard"]').click();
+
+        // Weather APi
+    // Weather icons mapping
+    
+
+
+
+
+
+    </script>
+        <script src="/javascripts/weather.js"></script>
+
+    <script>
+        // Crop Management Functions
+        function openAddCropModal() {
+            document.getElementById('add-crop-modal').classList.remove('hidden');
+            document.getElementById('add-crop-modal').classList.add('flex');
+        }
+
+        function closeAddCropModal() {
+            document.getElementById('add-crop-modal').classList.add('hidden');
+            document.getElementById('add-crop-modal').classList.remove('flex');
+        }
+
+        function openDiseaseModal() {
+            document.getElementById('disease-modal').classList.remove('hidden');
+            document.getElementById('disease-modal').classList.add('flex');
+        }
+
+        function closeDiseaseModal() {
+            document.getElementById('disease-modal').classList.add('hidden');
+            document.getElementById('disease-modal').classList.remove('flex');
+        }
+
+        // Function to update dashboard crops
+        function updateDashboardCrops(crops) {
+            const dashboardCrops = document.getElementById('dashboard-crops');
+            const noDashboardCrops = document.getElementById('no-dashboard-crops');
+            
+            if (!dashboardCrops) return;
+            
+            // Clear existing crops except the no-crops message
+            Array.from(dashboardCrops.children).forEach(child => {
+                if (child.id !== 'no-dashboard-crops') {
+                    child.remove();
+                }
+            });
+            
+            if (!Array.isArray(crops) || crops.length === 0) {
+                if (noDashboardCrops) {
+                    noDashboardCrops.style.display = 'block';
+                }
+                return;
+            }
+
+            if (noDashboardCrops) {
+                noDashboardCrops.style.display = 'none';
+            }
+
+            // Add up to 2 crops to the dashboard
+            crops.slice(0, 2).forEach(crop => {
+                const healthValue = crop.health || 85;
+                const cropElement = document.createElement('div');
+                cropElement.className = 'border rounded-lg p-4 hover:border-agri-green transition cursor-pointer';
+                cropElement.onclick = () => document.querySelector('[data-target="crops"]').click();
+                
+                cropElement.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="p-2 bg-agri-light rounded-lg mr-3">
+                            <i class="fas fa-seedling text-agri-green"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">${crop.name || 'Unnamed Crop'}</h3>
+                            <p class="text-sm text-gray-500">${crop.type || 'Unknown Type'}</p>
+                            <div class="mt-2 flex items-center">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-agri-green h-2 rounded-full transition-all duration-300" style="width: ${healthValue}%"></div>
+                                </div>
+                                <span class="text-xs ml-2">${healthValue}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                dashboardCrops.insertBefore(cropElement, noDashboardCrops);
+            });
+        }
+
+        // Update the loadCrops function to also update dashboard
+        async function loadCrops() {
+            try {
+                const response = await fetch('/api/crops', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch crops');
+                }
+
+                const crops = await response.json();
+                const cropsList = document.getElementById('crops-list');
+                const noCropsMessage = document.getElementById('no-crops-message');
+                
+                if (!cropsList) return;
+                
+                cropsList.innerHTML = '';
+                
+                if (!Array.isArray(crops) || crops.length === 0) {
+                    if (noCropsMessage) {
+                        noCropsMessage.style.display = 'block';
+                    }
+                    return;
+                }
+
+                if (noCropsMessage) {
+                    noCropsMessage.style.display = 'none';
+                }
+                
+                crops.forEach(crop => addCropToDisplay(crop));
+                
+                // Update dashboard crops
+                updateDashboardCrops(crops);
+            } catch (error) {
+                console.error('Error loading crops:', error);
+                alert('Failed to load crops. Please try again.');
+            }
+        }
+
+        // Function to add a crop to display
+        function addCropToDisplay(crop) {
+            const cropsList = document.getElementById('crops-list');
+            const noCropsMessage = document.getElementById('no-crops-message');
+            
+            if (!cropsList) return;
+            if (noCropsMessage) {
+                noCropsMessage.style.display = 'none';
+            }
+
+            const healthValue = crop.health || 85;
+
+            const cropCard = document.createElement('div');
+            cropCard.className = 'bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-5 max-w-md cursor-pointer';
+            cropCard.setAttribute('data-crop-id', crop._id);
+
+            const plantDate = new Date(crop.plantingDate);
+            const harvestDate = new Date(crop.harvestDate);
+
+            cropCard.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="text-[20px] font-semibold text-[#1f2937]">${crop.name || 'undefined'}</h3>
+                        <p class="text-[#6b7280] text-sm">${crop.type || 'Undefined'}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="openDiseaseModal()" class="text-[#16a34a] hover:text-[#15803d] transition-colors">
+                            <i class="fas fa-search text-lg"></i>
+                        </button>
+                        <button onclick="openEditCrop('${crop._id}')" class="text-[#16a34a] hover:text-[#15803d] transition-colors">
+                            <i class="fas fa-edit text-lg"></i>
+                        </button>
+                        <button onclick="deleteCrop('${crop._id}')" class="text-[#ef4444] hover:text-[#dc2626] transition-colors">
+                            <i class="fas fa-trash text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-3 mt-4">
+                    <div class="flex items-center gap-3">
+                        <i class="far fa-calendar text-[#6b7280] w-5"></i>
+                        <span class="text-[#374151] text-[15px]">Planted: ${plantDate.toLocaleDateString()}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-calendar-alt text-[#6b7280] w-5"></i>
+                        <span class="text-[#374151] text-[15px]">Harvest: ${harvestDate.toLocaleDateString()}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-expand-arrows-alt text-[#6b7280] w-5"></i>
+                        <span class="text-[#374151] text-[15px]">Field Size: ${crop.fieldSize} acres</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-heart text-[#6b7280] w-5"></i>
+                            <span class="text-[#374151] text-[15px]">Crop Health:</span>
+                        </div>
+                        <div class="relative h-2 bg-[#e5e7eb] rounded-full overflow-hidden ml-8">
+                            <div class="absolute top-0 left-0 h-full bg-[#22c55e] rounded-full" style="width: ${healthValue}%"></div>
+                        </div>
+                        <div class="text-right text-[#374151] text-sm font-medium">
+                            ${healthValue}%
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            cropsList.appendChild(cropCard);
+        }
+
+        // Update the crops list container styling
+        const cropsListContainer = document.getElementById('crops-list');
+        if (cropsListContainer) {
+            cropsListContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6';
+        }
+
+        // Add form submission handler
+        document.getElementById('add-crop-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            
+            // Create the crop data object
+            const cropData = {
+                name: formData.get('name').trim(),
+                type: formData.get('type').trim(),
+                plantingDate: formData.get('plantingDate'),
+                harvestDate: formData.get('harvestDate'),
+                fieldSize: parseFloat(formData.get('fieldSize')),
+                location: formData.get('location').trim(),
+                status: 'Growing',
+                health: 85
+            };
+
+            // Validate required fields
+            if (!cropData.name || !cropData.type || !cropData.plantingDate || !cropData.harvestDate || !cropData.fieldSize || !cropData.location) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/crops', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(cropData)
+                });
+
+                const responseData = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(responseData.message || responseData.error || 'Failed to add crop');
+                }
+
+                // Add the new crop to the display
+                addCropToDisplay(responseData);
+                closeAddCropModal();
+                e.target.reset();
+                
+                alert('Crop added successfully!');
+            } catch (error) {
+                console.error('Error adding crop:', error);
+                alert('Error adding crop: ' + error.message);
+            }
+        });
+
+        // Add delete crop function
+        async function deleteCrop(cropId) {
+            if (!confirm('Are you sure you want to delete this crop?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/crops/${cropId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete crop');
+                }
+
+                const cropCard = document.querySelector(`[data-crop-id="${cropId}"]`);
+                if (cropCard) {
+                    cropCard.remove();
+                }
+
+                const cropsList = document.getElementById('crops-list');
+                const noCropsMessage = document.getElementById('no-crops-message');
+                
+                if (cropsList.children.length === 0 && noCropsMessage) {
+                    noCropsMessage.style.display = 'block';
+                }
+
+                alert('Crop deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting crop:', error);
+                alert('Failed to delete crop: ' + error.message);
+            }
+        }
+
+        // Initialize crops when page loads
+        document.addEventListener('DOMContentLoaded', loadCrops);
+
+        // Disease Detection Functions
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size must be less than 2MB');
+                return;
+            }
+
+            // Validate file type
+            if (!file.type.match('image.*')) {
+                alert('Please upload an image file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewImage = document.getElementById('preview-image');
+                const uploadPreview = document.getElementById('upload-preview');
+                const uploadPrompt = document.getElementById('upload-prompt');
+                
+                previewImage.src = e.target.result;
+                uploadPreview.classList.remove('hidden');
+                uploadPrompt.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function analyzeDisease() {
+            const fileInput = document.getElementById('disease-image');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select an image first');
+                return;
+            }
+
+            const loadingState = document.getElementById('analysis-loading');
+            const analysisResults = document.getElementById('analysis-results');
+            const diseaseDetails = document.getElementById('disease-details');
+
+            // Show loading state
+            loadingState.classList.remove('hidden');
+            analysisResults.classList.add('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch('/api/detect-disease', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to analyze image');
+                }
+
+                const result = await response.json();
+                
+                // Display results
+                diseaseDetails.innerHTML = `
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center mb-3">
+                            <div class="p-2 ${result.confidence >= 70 ? 'bg-green-100' : 'bg-yellow-100'} rounded-lg mr-3">
+                                <i class="fas ${result.confidence >= 70 ? 'fa-check-circle text-green-500' : 'fa-exclamation-triangle text-yellow-500'}"></i>
+                            </div>
+                            <h5 class="font-medium text-lg">${result.disease}</h5>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-3">
+                            <p class="font-medium">Confidence: ${result.confidence}%</p>
+                            <p class="mt-2">${result.description}</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h6 class="font-medium text-blue-800 mb-2">Recommended Treatment:</h6>
+                            <p class="text-sm text-blue-700">${result.treatment}</p>
+                        </div>
+                    </div>
+                `;
+
+                analysisResults.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error analyzing disease:', error);
+                alert('Failed to analyze image. Please try again.');
+            } finally {
+                loadingState.classList.add('hidden');
+            }
+        }
+    </script>
+
+    <script>
+        // Add userId variable at the top of the forum functions
+        const userId = '<%= user._id %>'; // Get the current user's ID from the server-side template
+
+        // Forum Functions
+        let currentPage = 1;
+        let currentSort = 'recent';
+        let currentCategory = '';
+
+        function openForumModal() {
+            document.getElementById('forum-modal').classList.remove('hidden');
+        }
+
+        function closeForumModal() {
+            document.getElementById('forum-modal').classList.add('hidden');
+        }
+
+        async function loadPosts(page = 1, sort = 'recent', category = '') {
+            try {
+                console.log('Loading posts:', { page, sort, category });
+                const response = await fetch(`/api/forum/posts?page=${page}&sort=${sort}&category=${category}`);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to load posts');
+                }
+                
+                const data = await response.json();
+                console.log('Received posts data:', data);
+                
+                const container = document.getElementById('forum-posts-container');
+                
+                if (page === 1) {
+                    container.innerHTML = '';
+                }
+
+                if (!data.posts || !Array.isArray(data.posts)) {
+                    console.error('Invalid posts data received:', data);
+                    container.innerHTML = '<p class="text-center text-gray-500 py-8">No posts available</p>';
+                    return false;
+                }
+
+                if (data.posts.length === 0 && page === 1) {
+                    container.innerHTML = '<p class="text-center text-gray-500 py-8">No posts available. Be the first to ask a question!</p>';
+                    return false;
+                }
+
+                data.posts.forEach(post => {
+                    container.appendChild(createPostElement(post));
+                });
+
+                return data.totalPages > page;
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                const container = document.getElementById('forum-posts-container');
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <p>Failed to load posts. Please try again.</p>
+                        <button onclick="loadPosts()" class="mt-4 text-agri-green hover:text-agri-dark">
+                            Retry
+                        </button>
+                    </div>
+                `;
+                return false;
+            }
+        }
+
+        function createPostElement(post) {
+            const div = document.createElement('div');
+            div.className = 'bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow border border-gray-100';
+            div.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900 hover:text-agri-green">
+                            <a href="#" onclick="showPostDetails('${post._id}')">${post.title}</a>
+                        </h3>
+                        <p class="text-sm text-gray-500">Posted by ${post.authorName} • ${timeAgo(post.createdAt)} • ${post.category}</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="likePost('${post._id}')" class="flex items-center space-x-1 text-gray-500 hover:text-agri-green ${post.likes.includes(userId) ? 'text-agri-green' : ''}">
+                            <i class="fas fa-thumbs-up"></i>
+                            <span>${post.likes.length}</span>
+                        </button>
+                        <button onclick="showPostDetails('${post._id}')" class="flex items-center space-x-1 text-gray-500 hover:text-agri-green">
+                            <i class="fas fa-comment"></i>
+                            <span>${post.replies.length}</span>
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</p>
+                <div class="flex items-center justify-between">
+                    <div class="flex space-x-2">
+                        <span class="px-3 py-1 bg-agri-light text-agri-green rounded-full text-sm">${post.category}</span>
+                    </div>
+                    <a href="#" onclick="showPostDetails('${post._id}')" class="text-agri-green hover:text-green-700 text-sm font-medium">
+                        Read More →
+                    </a>
+                </div>
+            `;
+            return div;
+        }
+
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            let interval = seconds / 31536000;
+            
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+            return Math.floor(seconds) + " seconds ago";
+        }
+
+        async function filterPosts(sort) {
+            currentSort = sort;
+            currentPage = 1;
+            await loadPosts(currentPage, currentSort, currentCategory);
+        }
+
+        async function filterByCategory(category) {
+            currentCategory = category;
+            currentPage = 1;
+            await loadPosts(currentPage, currentSort, currentCategory);
+        }
+
+        async function loadMorePosts() {
+            currentPage++;
+            const hasMore = await loadPosts(currentPage, currentSort, currentCategory);
+            if (!hasMore) {
+                document.querySelector('[onclick="loadMorePosts()"]').style.display = 'none';
+            }
+        }
+
+        async function likePost(postId) {
+            try {
+                const response = await fetch(`/api/forum/posts/${postId}/like`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to like post');
+                }
+
+                await loadPosts(currentPage, currentSort, currentCategory);
+            } catch (error) {
+                console.error('Error liking post:', error);
+            }
+        }
+
+        // Forum form submission
+        document.getElementById('forum-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const postData = {
+                title: formData.get('title'),
+                category: formData.get('category'),
+                content: formData.get('content')
+            };
+
+            try {
+                const response = await fetch('/api/forum/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create post');
+                }
+
+                closeForumModal();
+                e.target.reset();
+                await loadPosts(1, currentSort, currentCategory);
+            } catch (error) {
+                console.error('Error creating post:', error);
+                alert('Failed to create post. Please try again.');
+            }
+        });
+
+        // Initialize forum posts when the forum tab is clicked
+        document.querySelector('[data-target="forum"]').addEventListener('click', () => {
+            loadPosts();
+        });
+
+        // Add showPostDetails function before the forum form submission
+        async function showPostDetails(postId) {
+            try {
+                const response = await fetch(`/api/forum/posts/${postId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch post details');
+                }
+                const post = await response.json();
+                
+                // Update modal content
+                document.getElementById('post-details-title').textContent = post.title;
+                
+                // Create the content HTML
+                let contentHtml = `
+                    <div class="mb-6">
+                        <div class="flex items-center mb-4">
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-500">Posted by ${post.authorName} • ${timeAgo(post.createdAt)}</p>
+                                <span class="inline-block px-3 py-1 bg-agri-light text-agri-green rounded-full text-sm mt-2">${post.category}</span>
+                            </div>
+                            <button onclick="likePost('${post._id}')" class="flex items-center space-x-1 text-gray-500 hover:text-agri-green ${post.likes.includes(userId) ? 'text-agri-green' : ''}">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>${post.likes.length}</span>
+                            </button>
+                        </div>
+                        <p class="text-gray-700 whitespace-pre-wrap">${post.content}</p>
+                    </div>
+                    <div class="border-t pt-6 mt-6">
+                        <h4 class="text-lg font-semibold mb-4">Replies (${post.replies.length})</h4>
+                        <div class="space-y-4" id="post-replies">
+                            ${post.replies.map(reply => `
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <p class="font-medium">${reply.authorName}</p>
+                                        <p class="text-sm text-gray-500">${timeAgo(reply.createdAt)}</p>
+                                    </div>
+                                    <p class="text-gray-700">${reply.content}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('post-details-content').innerHTML = contentHtml;
+                
+                // Show the modal
+                document.getElementById('post-details-modal').classList.remove('hidden');
+                
+                // Set up the reply form
+                const replyForm = document.getElementById('reply-form');
+                replyForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(replyForm);
+                    try {
+                        const response = await fetch(`/api/forum/posts/${postId}/replies`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                content: formData.get('content')
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error('Failed to add reply');
+                        }
+                        
+                        // Refresh the post details
+                        await showPostDetails(postId);
+                        replyForm.reset();
+                    } catch (error) {
+                        console.error('Error adding reply:', error);
+                        alert('Failed to add reply. Please try again.');
+                    }
+                };
+            } catch (error) {
+                console.error('Error fetching post details:', error);
+                alert('Failed to load post details. Please try again.');
+            }
+        }
+
+        function closePostDetails() {
+            document.getElementById('post-details-modal').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "name": "agriboost",
+  "version": "1.0.0",
+  "description": "AgriBoost Application",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "news-service": "node news-service.js",
+    "news-service:dev": "nodemon news-service.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "node node_modules/tailwindcss/lib/cli.js -i public/css/tailwind.css -o public/css/output.css",
+    "watch:css": "node node_modules/tailwindcss/lib/cli.js -i public/css/tailwind.css -o public/css/output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "bcrypt": "^5.1.1",
+    "cheerio": "^1.0.0-rc.12",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.1",
+    "multer": "^1.4.5-lts.1",
+    "newsapi": "^2.4.1",
+    "portfinder": "^1.0.35",
+    "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "nodemon": "^3.0.1",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.3.3"
+  }
+}

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBoost - Modern Farming Solutions</title>
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#00a86b">
+    <meta name="description" content="Your agricultural companion for smart farming">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AgriBoost">
+    <!-- End PWA Meta Tags -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hover-scale {
+            transition: all 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .gradient-text {
+            background: linear-gradient(45deg, #00a86b, #007350);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300a86b' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        .hero-bg {
+            background-image: url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 168, 107, 0.85), rgba(0, 115, 80, 0.85));
+            z-index: 1;
+        }
+        .features-bg {
+            background-image: url('https://images.unsplash.com/photo-1589923188903-0c0c0c0c0c0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+        .features-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 1;
+        }
+        .testimonials-bg {
+            background-image: url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+        .testimonials-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 1;
+        }
+        .cta-bg {
+            background-image: url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+        .cta-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 168, 107, 0.95), rgba(0, 115, 80, 0.95));
+            z-index: 1;
+        }
+        .relative-content {
+            position: relative;
+            z-index: 2;
+        }
+        .fallback-image {
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZWVlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=');
+            background-size: cover;
+            background-position: center;
+        }
+        /* Download Section Styles */
+        .download-section {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #00a86b 0%, #008c5a 100%);
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .download-section h2 {
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .download-section p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .install-button {
+            background-color: white;
+            color: #00a86b;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .install-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .install-button i {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Bar -->
+    <nav class="bg-white/80 backdrop-blur-md shadow-md fixed w-full z-50">
+        <div class="mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Brand - Far Left -->
+                <div class="flex-shrink-0">
+                    <a href="/">
+                        <img src="/images/logo.png" alt="AgriBoost Logo" class="h-10 w-auto">  
+                    </a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="/about" class="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition-colors">About Us</a>
+                    <a href="/dashboard" class="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition-colors">Dashboard</a>
+                </div>
+                
+                <!-- Profile Dropdown - Far Right -->
+                <% if (user) { %>
+                    <div class="relative ml-3">
+                        <button type="button" class="flex items-center" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                            <% if (user.profilePicture && user.profilePicture.data) { %>
+                                <img src="data:<%= user.profilePicture.contentType %>;base64,<%= user.profilePicture.data.toString('base64') %>" 
+                                     alt="Profile Picture" 
+                                     class="h-8 w-8 rounded-full object-cover ring-2 ring-green-500">
+                            <% } else { %>
+                                <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center ring-2 ring-green-500">
+                                    <i class="fas fa-user text-gray-500"></i>
+                                </div>
+                            <% } %>
+                        </button>
+                        <!-- Dropdown menu -->
+                        <div class="hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
+                            <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Your Profile</a>
+                            <a href="/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Dashboard</a>
+                            <a href="/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <a href="/login" class="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium transition-colors">Login</a>
+                    <a href="/dashboard" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors shadow-md hover:shadow-lg">Get Started</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="relative hero-bg min-h-screen flex items-center">
+        <div class="relative-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+            <div class="text-center max-w-3xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 animate-fade-in text-white drop-shadow-lg">
+                    <span class="text-white">Transform Your Farming</span>
+                    <br>
+                    <span class="text-white">With Smart Technology</span>
+                </h1>
+                <p class="text-xl text-white mb-8 animate-fade-in drop-shadow-md">
+                    Empowering farmers with AI-powered insights, weather forecasts, and market analysis for better crop management
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in">
+                    <a href="/dashboard" class="bg-white text-green-600 px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-100 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        Get Started Free
+                    </a>
+                    <a href="/about" class="border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white/10 transition duration-300 transform hover:-translate-y-1">
+                        Learn More
+                    </a>
+                </div>
+                <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="bg-white/20 backdrop-blur-sm p-4 rounded-lg border border-white/30">
+                        <i class="fas fa-robot text-3xl mb-2 text-white"></i>
+                        <p class="text-sm text-white">AI-Powered</p>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm p-4 rounded-lg border border-white/30">
+                        <i class="fas fa-cloud-sun text-3xl mb-2 text-white"></i>
+                        <p class="text-sm text-white">Smart Weather</p>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm p-4 rounded-lg border border-white/30">
+                        <i class="fas fa-chart-line text-3xl mb-2 text-white"></i>
+                        <p class="text-sm text-white">Market Insights</p>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm p-4 rounded-lg border border-white/30">
+                        <i class="fas fa-leaf text-3xl mb-2 text-white"></i>
+                        <p class="text-sm text-white">Crop Health</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="download-section">
+            <h2>Get AgriBoost on Your Device</h2>
+            <p>Install our app for a better experience and offline access</p>
+            <button id="installButton" class="install-button">
+                <i class="fas fa-download"></i> Install AgriBoost
+            </button>
+            
+            <!-- Diagnostic Information -->
+            <div id="pwaDiagnostics" class="mt-4 p-4 bg-gray-100 rounded-lg text-sm text-gray-700">
+                <h3 class="font-bold mb-2">PWA Installation Status:</h3>
+                <div id="pwaStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="py-20 features-bg">
+        <div class="relative-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose AgriBoost?</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Discover how our platform revolutionizes modern farming
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 hover-scale border border-gray-100 shadow-sm">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-robot text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">AI-Powered Analysis</h3>
+                    <p class="text-gray-600 mb-6">
+                        Advanced algorithms analyze crop health and provide actionable insights for better yields
+                    </p>
+                    <a href="/dashboard" class="text-green-600 font-medium hover:text-green-700 inline-flex items-center">
+                        Learn more <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 hover-scale border border-gray-100 shadow-sm">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-cloud-sun text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Smart Weather</h3>
+                    <p class="text-gray-600 mb-6">
+                        Real-time weather data and forecasts to optimize your farming schedule
+                    </p>
+                    <a href="/dashboard" class="text-green-600 font-medium hover:text-green-700 inline-flex items-center">
+                        Learn more <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 hover-scale border border-gray-100 shadow-sm">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-line text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Market Insights</h3>
+                    <p class="text-gray-600 mb-6">
+                        Stay informed about market trends and optimize your profits
+                    </p>
+                    <a href="/dashboard" class="text-green-600 font-medium hover:text-green-700 inline-flex items-center">
+                        Learn more <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Simple steps to transform your farming experience
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Step 1 -->
+                <div class="text-center hover-scale">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-3xl font-bold text-green-600">1</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Create Account</h3>
+                    <p class="text-gray-600">Sign up for free and get started in minutes</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="text-center hover-scale">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-3xl font-bold text-green-600">2</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Add Your Farm</h3>
+                    <p class="text-gray-600">Input your farm details and crop information</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="text-center hover-scale">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-3xl font-bold text-green-600">3</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Get Insights</h3>
+                    <p class="text-gray-600">Receive AI-powered recommendations and analysis</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="text-center hover-scale">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-3xl font-bold text-green-600">4</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Optimize & Grow</h3>
+                    <p class="text-gray-600">Make data-driven decisions for better yields</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-20 testimonials-bg">
+        <div class="relative-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What Farmers Say</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Success stories from our community of farmers
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 hover-scale border border-gray-100 shadow-sm">
+                    <div class="flex items-center mb-6">
+                        <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Rajesh Kumar" class="w-12 h-12 rounded-full object-cover mr-4 fallback-image" onerror="this.classList.add('fallback-image')">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Rajesh Kumar</h4>
+                            <p class="text-gray-600">Wheat Farmer, Punjab</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic mb-6">
+                        "AgriBoost has transformed my farming practices. The AI insights have helped me increase my yield by 30%."
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 hover-scale border border-gray-100 shadow-sm">
+                    <div class="flex items-center mb-6">
+                        <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Priya Sharma" class="w-12 h-12 rounded-full object-cover mr-4 fallback-image" onerror="this.classList.add('fallback-image')">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Priya Sharma</h4>
+                            <p class="text-gray-600">Organic Farmer, Karnataka</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic mb-6">
+                        "The weather forecasts and market insights have been game-changers for my organic farm."
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 hover-scale border border-gray-100 shadow-sm">
+                    <div class="flex items-center mb-6">
+                        <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Amit Patel" class="w-12 h-12 rounded-full object-cover mr-4 fallback-image" onerror="this.classList.add('fallback-image')">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Amit Patel</h4>
+                            <p class="text-gray-600">Rice Farmer, Gujarat</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic mb-6">
+                        "The disease detection feature saved my entire crop. Early warning system is excellent!"
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 cta-bg">
+        <div class="relative-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6 text-white">Ready to Transform Your Farming?</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto text-white/90">
+                Join thousands of farmers who are already using AgriBoost to enhance their agricultural productivity
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="/dashboard" class="bg-white text-green-600 px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-100 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Get Started Free
+                </a>
+                <a href="/about" class="border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white/10 transition duration-300 transform hover:-translate-y-1">
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">AgriBoost</h3>
+                    <p class="text-gray-400">
+                        Empowering farmers with technology for sustainable agriculture
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="/about" class="text-gray-400 hover:text-white transition-colors">About</a></li>
+                        <li><a href="/dashboard" class="text-gray-400 hover:text-white transition-colors">Dashboard</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/dashboard" class="text-gray-400 hover:text-white transition-colors">Crop Management</a></li>
+                        <li><a href="/dashboard" class="text-gray-400 hover:text-white transition-colors">Weather Forecast</a></li>
+                        <li><a href="/dashboard" class="text-gray-400 hover:text-white transition-colors">Market Analysis</a></li>
+                        <li><a href="/dashboard" class="text-gray-400 hover:text-white transition-colors">Disease Detection</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Connect With Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
+                <p>&copy; 2025 AgriBoost. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle dropdown menu
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-menu');
+        
+        userMenuButton.addEventListener('click', () => {
+            const expanded = userMenuButton.getAttribute('aria-expanded') === 'true';
+            userMenuButton.setAttribute('aria-expanded', !expanded);
+            userMenu.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenuButton.setAttribute('aria-expanded', 'false');
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-fade-in').forEach((element) => {
+            observer.observe(element);
+        });
+
+        // PWA Diagnostic Function
+        function checkPWAInstallation() {
+            const statusDiv = document.getElementById('pwaStatus');
+            const checks = {
+                'HTTPS': window.location.protocol === 'https:',
+                'Manifest': !!document.querySelector('link[rel="manifest"]'),
+                'Service Worker': 'serviceWorker' in navigator,
+                'Before Install Prompt': !!deferredPrompt,
+                'Display Mode': window.matchMedia('(display-mode: standalone)').matches,
+                'Is Installed': window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone
+            };
+
+            let statusHTML = '<ul class="list-disc pl-5">';
+            for (const [check, value] of Object.entries(checks)) {
+                statusHTML += `<li class="${value ? 'text-green-600' : 'text-red-600'}">${check}: ${value ? '✓' : '✗'}</li>`;
+            }
+            statusHTML += '</ul>';
+
+            statusDiv.innerHTML = statusHTML;
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope:', registration.scope);
+                        // Check if the app is already installed
+                        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+                            document.getElementById('installButton').style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('ServiceWorker registration failed:', error);
+                        document.getElementById('installButton').style.display = 'none';
+                    });
+            });
+        }
+
+        // PWA Installation
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+            installButton.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    try {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        console.log(`User response to the install prompt: ${outcome}`);
+                        if (outcome === 'accepted') {
+                            console.log('User accepted the install prompt');
+                            installButton.style.display = 'none';
+                        }
+                        deferredPrompt = null;
+                    } catch (error) {
+                        console.error('Error during installation:', error);
+                    }
+                }
+            });
+        });
+
+        // Hide install button if app is already installed
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('App was installed');
+            installButton.style.display = 'none';
+        });
+
+        // Check if app is already installed on page load
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+            installButton.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
