@@ -42,9 +42,11 @@ const sampleArticles = [
     }
 ];
 
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://sonughosh0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster';
+
 async function addSampleNews() {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/agriboost');
+        await mongoose.connect(MONGODB_URI);
         console.log('Connected to MongoDB');
 
         // Clear existing articles
