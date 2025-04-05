@@ -35,18 +35,30 @@ const upload = multer({
     limits: { fileSize: 2 * 1024 * 1024 } // 2MB limit
   });
 
- // Improved MongoDB connection with auto-reconnect
- mongoose.connect('mongodb://127.0.0.1:27017/authtestapp')
- .then(() => {})
- .catch(err => {
-   process.exit(1); // Exit if initial connection fails
- });
+// Improved MongoDB connection with auto-reconnect
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://sonughosh0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('Connected to MongoDB Atlas'))
+.catch(err => {
+    console.error('MongoDB connection error:', err);
+    // Don't exit, let the app continue without DB
+});
 
 // Event listeners for connection status
-mongoose.connection.on('connected', () => {});
+mongoose.connection.on('connected', () => {
+    console.log('MongoDB connection established');
+});
 
 mongoose.connection.on('disconnected', () => {
- setTimeout(() => mongoose.connect('mongodb://127.0.0.1:27017/authtestapp'), 5000);
+    console.log('MongoDB connection lost, attempting to reconnect...');
+    setTimeout(() => {
+        mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://sonughosh0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+    }, 5000);
 });
 
 // Function to fetch and store government schemes
@@ -103,6 +115,7 @@ async function fetchAndStoreSchemes() {
         console.log('Government schemes updated successfully');
     } catch (error) {
         console.error('Error fetching government schemes:', error);
+        // Continue without schemes
     }
 }
 

@@ -3,18 +3,26 @@ const { fetchAndStoreNews } = require('./app');
 
 // Configuration
 const FETCH_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
-const DB_URI = 'mongodb://127.0.0.1:27017/agriboost';
+const DB_URI = process.env.MONGODB_URI || 'mongodb+srv://sonughosh0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster';
 
 async function startNewsService() {
     try {
         // Connect to MongoDB
-        await mongoose.connect(DB_URI);
-        console.log('Connected to MongoDB');
+        await mongoose.connect(DB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log('Connected to MongoDB Atlas');
 
         // Initial fetch
         console.log('Performing initial news fetch...');
-        await fetchAndStoreNews();
-        console.log('Initial news fetch completed');
+        try {
+            await fetchAndStoreNews();
+            console.log('Initial news fetch completed');
+        } catch (error) {
+            console.error('Error in initial news fetch:', error);
+            // Continue running even if initial fetch fails
+        }
 
         // Schedule periodic fetches
         setInterval(async () => {
@@ -31,7 +39,8 @@ async function startNewsService() {
 
     } catch (error) {
         console.error('Failed to start news service:', error);
-        process.exit(1);
+        // Don't exit process on connection error, let the app continue
+        console.log('Continuing without news service...');
     }
 }
 
