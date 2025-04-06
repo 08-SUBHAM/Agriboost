@@ -12,6 +12,7 @@ const axios = require('axios'); // Add axios for API calls
 const News = require('./models/news');
 const Scheme = require('./models/scheme');
 const cheerio = require('cheerio');
+const newsService = require('./services/newsService');
 require('dotenv').config();
 
 // Import forum routes
@@ -172,15 +173,10 @@ app.get('/dashboard', checkAuth, async (req, res) => {
         const crops = await Crop.find({ userId: req.user.id });
         
         // Fetch news with proper error handling
-        let news = [];
-        try {
-            news = await News.find()
-                .sort({ publishedAt: -1 })
-                .limit(6)
-                .lean(); // Convert to plain JavaScript objects
-        } catch (newsError) {
-            console.error('Error fetching news:', newsError);
-        }
+        let [latestNews, trendingNews] = await Promise.all([
+            newsService.getLatestNews(),
+            newsService.getTrendingNews()
+        ]);
 
         // Fetch schemes with proper error handling
         let schemes = [];
@@ -188,18 +184,17 @@ app.get('/dashboard', checkAuth, async (req, res) => {
             schemes = await Scheme.find({ status: 'Active' })
                 .sort({ date: -1 })
                 .limit(4)
-                .lean(); // Convert to plain JavaScript objects
-            console.log('Fetched schemes:', schemes); // Debug log
+                .lean();
         } catch (schemesError) {
             console.error('Error fetching schemes:', schemesError);
         }
         
-        console.log('Rendering dashboard with schemes:', schemes); // Debug log
         res.render('dashboard', { 
             user,
             crops,
-            newsArticles: news,
-            schemes: schemes
+            newsArticles: latestNews,
+            trendingNews,
+            schemes
         });
     } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -579,199 +574,19 @@ app.post('/api/detect-disease', checkAuth, upload.single('image'), async (req, r
     }
 });
 
-// Function to fetch and store news
-async function fetchAndStoreNews() {
-    try {
-        const sources = [
-            {
-                url: 'https://www.agriculture.com/news',
-                category: 'news',
-                selector: {
-                    article: 'article',
-                    title: 'h2',
-                    description: 'p',
-                    image: 'img',
-                    link: 'a',
-                    date: 'time'
-                }
-            },
-            {
-                url: 'https://www.farmers.gov.in/',
-                category: 'scheme',
-                selector: {
-                    article: '.scheme-item',
-                    title: '.scheme-title',
-                    description: '.scheme-description',
-                    image: 'img',
-                    link: 'a',
-                    date: '.scheme-date'
-                }
-            }
-        ];
-
-        for (const source of sources) {
-            try {
-                console.log(`Fetching news from ${source.url}...`);
-                const response = await axios.get(source.url, {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                    },
-                    timeout: 10000
-                });
-
-                const $ = cheerio.load(response.data);
-                const articles = [];
-
-                $(source.selector.article).each((i, element) => {
-                    try {
-                        const title = $(element).find(source.selector.title).text().trim();
-                        const description = $(element).find(source.selector.description).text().trim();
-                        let imageUrl = $(element).find(source.selector.image).attr('src');
-                        const link = $(element).find(source.selector.link).attr('href');
-                        const date = $(element).find(source.selector.date).text().trim();
-
-                        // Handle relative image URLs
-                        if (imageUrl && !imageUrl.startsWith('http')) {
-                            const baseUrl = new URL(source.url).origin;
-                            imageUrl = new URL(imageUrl, baseUrl).href;
-                        }
-
-                        // Handle relative links
-                        if (link && !link.startsWith('http')) {
-                            const baseUrl = new URL(source.url).origin;
-                            link = new URL(link, baseUrl).href;
-                        }
-
-                        if (title && description) {
-                            articles.push({
-                                title,
-                                description,
-                                imageUrl: imageUrl || null,
-                                url: link,
-                                category: source.category,
-                                source: new URL(source.url).hostname,
-                                publishedAt: new Date(date || Date.now())
-                            });
-                        }
-                    } catch (articleError) {
-                        console.error('Error processing article:', articleError);
-                    }
-                });
-
-                console.log(`Found ${articles.length} articles from ${source.url}`);
-
-                // Store articles in database
-                for (const article of articles) {
-                    try {
-                        await News.findOneAndUpdate(
-                            { title: article.title },
-                            article,
-                            { upsert: true, new: true }
-                        );
-                    } catch (dbError) {
-                        console.error('Error storing article:', dbError);
-                    }
-                }
-
-                // Add delay between requests to avoid overwhelming the server
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            } catch (error) {
-                console.error(`Error fetching from ${source.url}:`, error);
-            }
-        }
-    } catch (error) {
-        console.error('Error in fetchAndStoreNews:', error);
-    }
-}
-
-// Schedule news and scheme updates
-setInterval(fetchAndStoreNews, 2 * 60 * 60 * 1000); // Every 2 hours
-
-// Update the government schemes endpoint
-app.get('/api/govt-schemes', checkAuth, async (req, res) => {
-    console.log('Received request for government schemes');
-    try {
-        const schemes = await Scheme.find({ status: 'Active' })
-            .sort({ date: -1 })
-            .limit(10);
-        res.json(schemes);
-    } catch (error) {
-        console.error('Error in /api/govt-schemes endpoint:', error);
-        res.status(500).json({ 
-            error: 'Failed to fetch government schemes', 
-            details: error.message
-        });
-    }
-});
-
-// Add endpoint to manually add government schemes
-app.post('/api/govt-schemes', checkAuth, async (req, res) => {
-    try {
-        const scheme = new Scheme({
-            name: req.body.name,
-            description: req.body.description,
-            amount: req.body.amount,
-            date: req.body.date,
-            eligibility: req.body.eligibility,
-            documents: req.body.documents,
-            source: req.body.source,
-            sourceUrl: req.body.sourceUrl,
-            status: req.body.status
-        });
-
-        await scheme.save();
-        res.json({ message: 'Scheme added successfully', scheme });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to add scheme', details: error.message });
-    }
-});
-
-// Search endpoint for schemes and news
-app.get('/api/search', checkAuth, async (req, res) => {
-    try {
-        const query = req.query.q;
-        const results = await News.find({
-            $or: [
-                { title: { $regex: new RegExp(query, "i") } },
-                { description: { $regex: new RegExp(query, "i") } }
-            ]
-        })
-        .sort({ publishedAt: -1 })
-        .limit(20);
-
-        res.json(results);
-    } catch (error) {
-        res.status(500).json({ error: 'Search failed', details: error.message });
-    }
-});
-
-// API endpoint for news
-app.get('/api/news', checkAuth, async (req, res) => {
-    try {
-        const category = req.query.category;
-        const query = category ? { category } : {};
-        const news = await News.find(query)
-            .sort({ publishedAt: -1 })
-            .limit(10);
-        res.json(news);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch news' });
-    }
-});
-
 // Start automatic news fetching when the server starts
 async function startAutomaticNewsFetching() {
     try {
         // Initial fetch when server starts
         console.log('Performing initial news fetch...');
-        await fetchAndStoreNews();
+        await newsService.fetchAndStoreNews();
         console.log('Initial news fetch completed');
 
         // Schedule periodic fetches every 2 hours
         setInterval(async () => {
             console.log('Starting scheduled news fetch...');
             try {
-                await fetchAndStoreNews();
+                await newsService.fetchAndStoreNews();
                 console.log('Scheduled news fetch completed');
             } catch (error) {
                 console.error('Error in scheduled news fetch:', error);
@@ -785,6 +600,36 @@ async function startAutomaticNewsFetching() {
 // Use forum routes with /api/forum prefix
 app.use('/api/forum', forumRoutes);
 
+// News tracking endpoints
+app.post('/api/news/:id/view', checkAuth, async (req, res) => {
+    try {
+        await newsService.incrementViews(req.params.id);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to track view' });
+    }
+});
+
+app.post('/api/news/:id/click', checkAuth, async (req, res) => {
+    try {
+        await newsService.incrementClicks(req.params.id);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to track click' });
+    }
+});
+
+// Enhanced news search endpoint
+app.get('/api/news/search', checkAuth, async (req, res) => {
+    try {
+        const { query, category, region, limit = 20 } = req.query;
+        const results = await newsService.searchNews(query, category, region, limit);
+        res.json(results);
+    } catch (error) {
+        res.status(500).json({ error: 'Search failed', details: error.message });
+    }
+});
+
 // Update the server start to use environment variables
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
@@ -792,8 +637,5 @@ app.listen(PORT, '0.0.0.0', () => {
     startAutomaticNewsFetching();
 });
 
-// Export the function
-module.exports = {
-    app,
-    fetchAndStoreNews
-};
+// Export the app
+module.exports = app;
