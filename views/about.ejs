@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - AgriBoost</title>
+    <title>About AgriBoost - Your Agricultural Companion</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#00a86b">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -355,6 +357,19 @@
         document.querySelectorAll('.animate-fade-in').forEach((element) => {
             observer.observe(element);
         });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
 
         let deferredPrompt;
 
