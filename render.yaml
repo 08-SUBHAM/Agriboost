@@ -11,17 +11,5 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: COOKIE_SECRET
-        sync: false
-      - key: PLANT_ID_API_KEY
-        sync: false
-      - key: WEATHER_API_KEY
-        sync: false
-      - key: CLOUDINARY_CLOUD_NAME
-        sync: false
-      - key: CLOUDINARY_API_KEY
-        sync: false
-      - key: CLOUDINARY_API_SECRET
-        sync: false
     healthCheckPath: /
     autoDeploy: true 
