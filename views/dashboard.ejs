@@ -4,16 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgriBoost dashboard</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#00a86b">
-    <meta name="description" content="Your agricultural companion for smart farming">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/images/icons/icon-152x152.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="AgriBoost">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -32,8 +22,8 @@
             }
         }
 
-         const API_KEY = "ce5102271f5d2cc57840d7142542ea69";
-     </script>
+        const API_KEY = "ce5102271f5d2cc57840d7142542ea69";
+    </script>
 
     <% 
     // Initialize variables with default empty arrays if not provided
@@ -77,7 +67,7 @@
         <div class="p-6 flex items-center space-x-3">
             <a href="/" class="flex items-center">
                 <img src="/images/logo.png" alt="Website Logo" class="h-10 w-auto">
-        </a>
+            </a>
         </div>
 
         <!-- Navigation -->
@@ -303,19 +293,19 @@
                     <div class="space-y-4">
                         <% if (localSchemes && localSchemes.length > 0) { %>
                             <% localSchemes.forEach(scheme => { %>
-                        <div class="p-4 bg-agri-light rounded-lg">
-                            <div class="flex items-center mb-2">
-                                <div class="p-2 bg-white rounded-lg mr-3 shadow-sm">
-                                    <i class="fas fa-hand-holding-usd text-agri-green"></i>
-                                </div>
+                                <div class="p-4 bg-agri-light rounded-lg">
+                                    <div class="flex items-center mb-2">
+                                        <div class="p-2 bg-white rounded-lg mr-3 shadow-sm">
+                                            <i class="fas fa-hand-holding-usd text-agri-green"></i>
+                                        </div>
                                         <h3 class="font-medium"><%= scheme.name %></h3>
-                            </div>
+                                    </div>
                                     <p class="text-sm text-gray-600">Next installment of <%= scheme.amount %> expected by <%= scheme.date %></p>
-                            <div class="mt-3 flex justify-between items-center">
-                                <span class="text-xs px-2 py-1 bg-white rounded-full">Active</span>
-                                <a href="#" class="text-sm text-agri-green font-medium">View Details</a>
-                            </div>
-                        </div>
+                                    <div class="mt-3 flex justify-between items-center">
+                                        <span class="text-xs px-2 py-1 bg-white rounded-full">Active</span>
+                                        <a href="#" class="text-sm text-agri-green font-medium">View Details</a>
+                                    </div>
+                                </div>
                             <% }); %>
                         <% } else { %>
                             <p class="text-gray-500 text-center">No government schemes available.</p>
@@ -615,13 +605,13 @@
                                 <div class="flex items-center justify-between mb-2">
                                     <h3 class="text-lg font-semibold text-gray-800"><%= scheme.name %></h3>
                                     <span class="text-purple-600 font-medium">₹<%= scheme.amount %></span>
-                            </div>
+                                </div>
                                 <p class="text-gray-600 text-sm mb-3"><%= scheme.description %></p>
                                 <div class="flex items-center justify-between text-sm text-gray-500">
                                     <span>Last Updated: <%= new Date(scheme.date).toLocaleDateString() %></span>
                                     <a href="<%= scheme.sourceUrl %>" target="_blank" class="text-purple-600 hover:text-purple-800">Read More</a>
-                        </div>
-                        </div>
+                                </div>
+                            </div>
                         <% }); %>
                     <% } else { %>
                         <div class="col-span-full text-center text-gray-500 py-4">
@@ -677,8 +667,8 @@
                     <button onclick="openForumModal()" class="bg-agri-green text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center">
                         <i class="fas fa-plus-circle mr-2"></i>
                         Ask a Question
-                        </button>
-                    </div>
+                    </button>
+                </div>
 
                 <!-- Forum Post Modal -->
                 <div id="forum-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -688,12 +678,12 @@
                             <button onclick="closeForumModal()" class="text-gray-400 hover:text-gray-600">
                                 <i class="fas fa-times"></i>
                             </button>
-                            </div>
+                        </div>
                         <form id="forum-form" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
                                 <input type="text" name="title" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green">
-                        </div>
+                            </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
                                 <select name="category" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green">
@@ -704,7 +694,7 @@
                                     <option value="Technology">Technology</option>
                                     <option value="Disease Control">Disease Control</option>
                                 </select>
-                        </div>
+                            </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Question</label>
                                 <textarea name="content" required rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-agri-green"></textarea>
@@ -715,7 +705,7 @@
                                 </button>
                                 <button type="submit" class="px-4 py-2 bg-agri-green text-white rounded-md hover:bg-green-700">
                                     Post Question
-                        </button>
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -737,7 +727,7 @@
                         <option value="Technology">Technology</option>
                         <option value="Disease Control">Disease Control</option>
                     </select>
-                    </div>
+                </div>
 
                 <!-- Forum Posts -->
                 <div id="forum-posts-container" class="space-y-6">
@@ -779,39 +769,7 @@
     </div>
 
     <script>
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
 
-        // Handle Install Prompt
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Show install button or notification
-            const installButton = document.createElement('button');
-            installButton.textContent = 'Install AgriBoost';
-            installButton.className = 'fixed bottom-4 right-4 bg-agri-green text-white px-4 py-2 rounded-lg shadow-lg';
-            installButton.onclick = () => {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                    }
-                    deferredPrompt = null;
-                });
-            };
-            document.body.appendChild(installButton);
-        });
 
         // Mobile menu toggle
         const menuToggle = document.getElementById('menuToggle');

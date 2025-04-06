@@ -6,8 +6,9 @@ const isAuthenticated = async (req, res, next) => {
         const token = req.cookies.token;
         if (!token) {
             // Clear any existing user data
-            res.locals.user = null;
             req.user = null;
+            res.locals.isAuthenticated = false;
+            res.locals.user = null;
             
             if (req.path.startsWith('/api/')) {
                 return res.status(401).json({ error: 'Authentication required' });
@@ -26,8 +27,9 @@ const isAuthenticated = async (req, res, next) => {
                 sameSite: 'strict',
                 path: '/'
             });
-            res.locals.user = null;
             req.user = null;
+            res.locals.isAuthenticated = false;
+            res.locals.user = null;
             
             if (req.path.startsWith('/api/')) {
                 return res.status(401).json({ error: 'User not found' });
@@ -42,6 +44,7 @@ const isAuthenticated = async (req, res, next) => {
             firstname: user.firstname || '',
             surname: user.surname || ''
         };
+        res.locals.isAuthenticated = true;
         res.locals.user = req.user;
 
         next();
@@ -53,8 +56,9 @@ const isAuthenticated = async (req, res, next) => {
             sameSite: 'strict',
             path: '/'
         });
-        res.locals.user = null;
         req.user = null;
+        res.locals.isAuthenticated = false;
+        res.locals.user = null;
         
         if (req.path.startsWith('/api/')) {
             return res.status(401).json({ error: 'Invalid token' });

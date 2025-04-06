@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const { fetchAndStoreNews } = require('./app');
+require('dotenv').config();
 
 // Configuration
 const FETCH_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
-const DB_URI = process.env.MONGODB_URI || 'mongodb+srv://sonughosh0810:Sonu0810@cluster.qxafmqo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster';
+const DB_URI = process.env.MONGODB_URI;
 
 async function startNewsService() {
     try {

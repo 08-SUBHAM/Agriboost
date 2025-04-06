@@ -4,15 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgriBoost - Modern Farming Solutions</title>
+    
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#00a86b">
-    <meta name="description" content="Your agricultural companion for smart farming">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="Grow More, Worry Less - Your agricultural companion for smart farming">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="AgriBoost">
-    <!-- End PWA Meta Tags -->
+    
+    <!-- PWA Links -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -129,51 +132,6 @@
             background-size: cover;
             background-position: center;
         }
-        /* Download Section Styles */
-        .download-section {
-            text-align: center;
-            margin: 2rem 0;
-            padding: 2rem;
-            background: linear-gradient(135deg, #00a86b 0%, #008c5a 100%);
-            border-radius: 10px;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .download-section h2 {
-            margin-bottom: 1rem;
-            font-size: 1.8rem;
-        }
-
-        .download-section p {
-            margin-bottom: 1.5rem;
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .install-button {
-            background-color: white;
-            color: #00a86b;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .install-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .install-button i {
-            font-size: 1.2rem;
-        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -259,23 +217,6 @@
                         <p class="text-sm text-white">Crop Health</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Download Section -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="download-section">
-            <h2>Get AgriBoost on Your Device</h2>
-            <p>Install our app for a better experience and offline access</p>
-            <button id="installButton" class="install-button">
-                <i class="fas fa-download"></i> Install AgriBoost
-            </button>
-            
-            <!-- Diagnostic Information -->
-            <div id="pwaDiagnostics" class="mt-4 p-4 bg-gray-100 rounded-lg text-sm text-gray-700">
-                <h3 class="font-bold mb-2">PWA Installation Status:</h3>
-                <div id="pwaStatus"></div>
             </div>
         </div>
     </div>
@@ -565,81 +506,20 @@
         document.querySelectorAll('.animate-fade-in').forEach((element) => {
             observer.observe(element);
         });
-
-        // PWA Diagnostic Function
-        function checkPWAInstallation() {
-            const statusDiv = document.getElementById('pwaStatus');
-            const checks = {
-                'HTTPS': window.location.protocol === 'https:',
-                'Manifest': !!document.querySelector('link[rel="manifest"]'),
-                'Service Worker': 'serviceWorker' in navigator,
-                'Before Install Prompt': !!deferredPrompt,
-                'Display Mode': window.matchMedia('(display-mode: standalone)').matches,
-                'Is Installed': window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone
-            };
-
-            let statusHTML = '<ul class="list-disc pl-5">';
-            for (const [check, value] of Object.entries(checks)) {
-                statusHTML += `<li class="${value ? 'text-green-600' : 'text-red-600'}">${check}: ${value ? '✓' : '✗'}</li>`;
-            }
-            statusHTML += '</ul>';
-
-            statusDiv.innerHTML = statusHTML;
-        }
-
-        // Service Worker Registration
+    </script>
+    
+    <!-- Service Worker Registration -->
+    <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
-                        console.log('ServiceWorker registration successful with scope:', registration.scope);
-                        // Check if the app is already installed
-                        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-                            document.getElementById('installButton').style.display = 'none';
-                        }
+                        console.log('ServiceWorker registration successful');
                     })
-                    .catch(error => {
-                        console.error('ServiceWorker registration failed:', error);
-                        document.getElementById('installButton').style.display = 'none';
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
                     });
             });
-        }
-
-        // PWA Installation
-        let deferredPrompt;
-        const installButton = document.getElementById('installButton');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installButton.style.display = 'block';
-            installButton.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    try {
-                        deferredPrompt.prompt();
-                        const { outcome } = await deferredPrompt.userChoice;
-                        console.log(`User response to the install prompt: ${outcome}`);
-                        if (outcome === 'accepted') {
-                            console.log('User accepted the install prompt');
-                            installButton.style.display = 'none';
-                        }
-                        deferredPrompt = null;
-                    } catch (error) {
-                        console.error('Error during installation:', error);
-                    }
-                }
-            });
-        });
-
-        // Hide install button if app is already installed
-        window.addEventListener('appinstalled', (evt) => {
-            console.log('App was installed');
-            installButton.style.display = 'none';
-        });
-
-        // Check if app is already installed on page load
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-            installButton.style.display = 'none';
         }
     </script>
 </body>

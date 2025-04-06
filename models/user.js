@@ -4,32 +4,49 @@ const bcrypt = require('bcrypt');
 const userSchema = new mongoose.Schema({
     firstname: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     surname: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     email: {
         type: String,
         required: true,
         unique: true,
-        lowercase: true,
-        trim: true
+        trim: true,
+        lowercase: true
     },
     password: {
         type: String,
         required: true
     },
+    phone: {
+        type: String,
+        trim: true
+    },
+    address: {
+        type: String,
+        trim: true
+    },
     profilePicture: {
-        data: Buffer,
-        contentType: String
+        type: String,
+        default: null
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
     },
     company: String,
     bio: String,
     birthday: Date,
     country: String,
-    phone: String,
     website: String,
     emailVerified: {
         type: Boolean,
@@ -65,6 +82,12 @@ userSchema.index({ createdAt: -1 });
 // Add virtual for full name
 userSchema.virtual('fullName').get(function() {
     return `${this.firstname} ${this.surname}`;
+});
+
+// Update the updatedAt timestamp before saving
+userSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
 });
 
 module.exports = mongoose.model("User", userSchema);
