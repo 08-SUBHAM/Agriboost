@@ -153,10 +153,4 @@ async function deleteCrop(cropId) {
 // Load crops when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     loadCrops();
-    
-    // Add form submit handler
-    const addCropForm = document.getElementById('add-crop-form');
-    if (addCropForm) {
-        addCropForm.addEventListener('submit', handleCropSubmit);
-    }
 }); 
