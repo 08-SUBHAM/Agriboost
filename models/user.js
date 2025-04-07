@@ -32,8 +32,8 @@ const userSchema = new mongoose.Schema({
         trim: true
     },
     profilePicture: {
-        type: String,
-        default: null
+        data: Buffer,
+        contentType: String
     },
     createdAt: {
         type: Date,

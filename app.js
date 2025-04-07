@@ -303,12 +303,11 @@ app.post('/profile', checkAuth, upload.single('profilePicture'), async (req, res
         // Set the new cookie
         res.cookie("token", newToken, { httpOnly: true });
         
-
-        
         // Single redirect with success message
         res.redirect('/profile?tab=' + (req.body.activeTab || 'general') + '&success=Profile+updated+successfully');
         
     } catch (err) {
+        console.error('Profile update error:', err);
         res.render('profile', { 
             user: req.user,
             error: 'Error updating profile: ' + err.message,
