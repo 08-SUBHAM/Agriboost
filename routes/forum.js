@@ -26,11 +26,18 @@ router.get('/posts', isAuthenticated, async (req, res) => {
             .limit(limit)
             .populate('author', 'firstname surname');
 
+        // Convert author field to string for each post
+        const formattedPosts = posts.map(post => {
+            const postObj = post.toObject();
+            postObj.author = post.author._id.toString();
+            return postObj;
+        });
+
         const total = await Forum.countDocuments(query);
         const totalPages = Math.ceil(total / limit);
 
         res.json({
-            posts,
+            posts: formattedPosts,
             currentPage: page,
             totalPages,
             hasMore: page < totalPages
@@ -126,6 +133,28 @@ router.get('/posts/:postId', isAuthenticated, async (req, res) => {
     } catch (error) {
         console.error('Error fetching post:', error);
         res.status(500).json({ error: 'Failed to fetch post' });
+    }
+});
+
+// Delete a post (only by the author)
+router.delete('/posts/:postId', isAuthenticated, async (req, res) => {
+    try {
+        const post = await Forum.findById(req.params.postId);
+        
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        
+        // Check if the current user is the author of the post
+        if (post.author.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'You are not authorized to delete this post' });
+        }
+        
+        await Forum.findByIdAndDelete(req.params.postId);
+        res.json({ message: 'Post deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        res.status(500).json({ error: 'Failed to delete post' });
     }
 });
 
