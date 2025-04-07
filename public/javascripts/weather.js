@@ -205,9 +205,8 @@ const WeatherApp = (function() {
                 <p class="w-24">${index === 0 ? 'Today' : dayName}</p>
                 <i class="fas ${iconClass} text-xl text-gray-400"></i>
                 <div class="w-32">
-                    <div class="flex justify-between text-sm">
-                        <span>${Math.round(item.main.temp_max)}°</span>
-                        <span>${Math.round(item.main.temp_min)}°</span>
+                    <div class="text-sm text-center">
+                        <span>${Math.round(item.main.temp)}°</span>
                     </div>
                 </div>
                 <p class="text-sm w-16 text-right">${item.main.humidity}%</p>
