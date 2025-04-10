@@ -815,8 +815,6 @@
     </div>
 
     <script>
-
-
         // Mobile menu toggle
         const menuToggle = document.getElementById('menuToggle');
         const sidebar = document.getElementById('sidebar');
@@ -1614,6 +1612,47 @@
 
         document.querySelectorAll('#news-container > div[data-article-id]').forEach(article => {
             observer.observe(article);
+        });
+    </script>
+
+    <script>
+        // Function to increment clicks for news articles
+        function incrementClicks(articleId) {
+            fetch('/api/news/track-click', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ articleId: articleId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Error tracking click');
+                }
+            })
+            .catch(error => {
+                console.error('Error tracking click:', error);
+            });
+        }
+
+        // Filter news by category
+        document.querySelectorAll('.category-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active button
+                document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const category = button.dataset.category;
+                const articles = document.querySelectorAll('#news-container > div[data-category]');
+
+                articles.forEach(article => {
+                    if (category === 'all' || article.dataset.category === category) {
+                        article.style.display = 'block';
+                    } else {
+                        article.style.display = 'none';
+                    }
+                });
+            });
         });
     </script>
 

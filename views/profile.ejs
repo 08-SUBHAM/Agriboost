@@ -12,15 +12,16 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#26B4FF',
-                        facebook: '#3B5998',
-                        instagram: '#000',
-                        light: '#babbbc',
+                        primary: '#4F7942', // Forest Green
+                        secondary: '#8FBC8F', // Dark Sea Green
+                        accent: '#3CB371', // Medium Sea Green
+                        light: '#E8F5E9', // Light Green
                         muted: '#4E5155',
                         borderlight: 'rgba(24, 28, 33, 0.03)'
                     },
                     boxShadow: {
-                        card: '0 1px 4px rgba(24, 28, 33, 0.012)'
+                        card: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                        hover: '0 10px 15px rgba(0, 0, 0, 0.1)'
                     }
                 }
             }
@@ -51,45 +52,94 @@
         .tab-content > .active {
             display: block;
         }
+        
+        .tab-link.active {
+            color: #4F7942;
+            border-left: 3px solid #4F7942;
+            background-color: #E8F5E9;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(79, 121, 66, 0.2);
+            border-color: transparent;
+        }
+        
+        .btn-primary {
+            padding: 0.5rem 1rem;
+            background-color: #4F7942;
+            color: white;
+            border-radius: 0.375rem;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3CB371;
+        }
+        
+        .btn-secondary {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            color: #4b5563;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #E8F5E9;
+        }
     </style>
 </head>
 
 <body class="bg-gray-50">
     <!-- Navigation Bar -->
-    <nav class="bg-white shadow-md">
+    <nav class="bg-gradient-to-r from-primary to-accent text-white shadow-md">
         <div class="mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo/Brand - Far Left -->
                 <div class="flex-shrink-0">
-                    <a href="/">
+                    <a href="/" class="flex items-center">
                         <img src="./images/logo.png" alt="AgriBoost Logo" class="h-10 w-auto">  
                     </a>
                 </div>
                 <div class="hidden md:flex space-x-8">
-                    <a href="/about" class="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium">About Us</a>
-                    <a href="/dashboard" class="text-gray-700 hover:text-green-600 px-3 py-2 text-sm font-medium">Dashboard</a>
+                    <a href="/about" class="text-white hover:text-light px-3 py-2 text-sm font-medium transition-colors duration-200">About Us</a>
+                    <a href="/dashboard" class="text-white hover:text-light px-3 py-2 text-sm font-medium transition-colors duration-200">Dashboard</a>
                 </div>
                 
                 <!-- Profile Dropdown - Far Right -->
                 <div class="relative ml-4">
-                    <button type="button" class="flex items-center text-gray-700 hover:text-green-600 focus:outline-none" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                    <button type="button" class="flex items-center text-white hover:text-light focus:outline-none" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                         <span class="sr-only">Open user menu</span>
                         <% if (user && user.profilePicture && user.profilePicture.data) { %>
                             <img src="data:<%= user.profilePicture.contentType %>;base64,<%= user.profilePicture.data.toString('base64') %>" 
                                  alt="Profile Picture" 
-                                 class="h-8 w-8 rounded-full object-cover">
+                                 class="h-10 w-10 rounded-full object-cover border-2 border-white">
                         <% } else { %>
-                            <div class="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-sm font-bold text-purple-600">
+                            <div class="h-10 w-10 rounded-full bg-light flex items-center justify-center text-sm font-bold text-primary border-2 border-white">
                                 <%= user.firstname.charAt(0).toUpperCase() %><%= user.surname.charAt(0).toUpperCase() %>
                             </div>
                         <% } %>
+                        <span class="ml-2 hidden md:inline-block"><%= user.firstname %> <%= user.surname %></span>
+                        <svg class="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
                     </button>
                     
                     <!-- Dropdown Menu (hidden by default) -->
                     <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10" id="user-menu">
-                        <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                        <a href="/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
-                        <a href="/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                        <a href="/home" class="block px-4 py-2 text-sm text-gray-700 hover:bg-light hover:text-primary">Profile</a>
+                        <a href="/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-light hover:text-primary">Dashboard</a>
+                        <a href="/about" class="block px-4 py-2 text-sm text-gray-700 hover:bg-light hover:text-primary">About Us</a>
+                        <div class="border-t border-gray-100 my-1"></div>
+                        <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</a>
                     </div>
                 </div>
             </div>
@@ -102,84 +152,179 @@
         </div>
     <% } else { %>
     <div class="container mx-auto px-4 py-8">
-        <h4 class="font-bold text-xl py-3 mb-4">
-            Account settings
-        </h4>
+        <div class="flex items-center justify-between mb-6">
+            <h4 class="font-bold text-2xl text-gray-800">
+                Account Settings
+            </h4>
+            <nav class="text-sm breadcrumbs">
+                <ol class="list-none p-0 inline-flex">
+                    <li class="flex items-center">
+                        <a href="/" class="text-primary hover:text-accent">Home</a>
+                        <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg>
+                    </li>
+                    <li>
+                        <span class="text-gray-500">Profile</span>
+                    </li>
+                </ol>
+            </nav>
+        </div>
         
         <% if (typeof error !== 'undefined' && error) { %>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline"><%= error %></span>
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow" role="alert">
+                <div class="flex">
+                    <div class="py-1"><svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg></div>
+                    <div>
+                        <p class="font-bold">Error</p>
+                        <p><%= error %></p>
+                    </div>
+                </div>
             </div>
         <% } %>
         
         <% if (typeof success !== 'undefined' && success) { %>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline"><%= success %></span>
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow" role="alert">
+                <div class="flex">
+                    <div class="py-1"><svg class="fill-current h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg></div>
+                    <div>
+                        <p class="font-bold">Success</p>
+                        <p><%= success %></p>
+                    </div>
+                </div>
             </div>
         <% } %>
 
         <form method="post" action="/profile" enctype="multipart/form-data">
             <input type="hidden" name="activeTab" id="activeTabField" value="<%= activeTab || 'general' %>">
             
-            <div class="bg-white rounded-lg shadow-card overflow-hidden">
-                <div class="row-bordered flex flex-col md:flex-row border-gray-200">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="row-bordered flex flex-col md:flex-row">
                     <div class="w-full md:w-1/4 pt-0">
-                        <div class="border-r border-gray-200">
-                            <a class="block py-3 px-6 border-b border-gray-100 bg-transparent font-medium text-gray-700 tab-link <%= activeTab === 'general' ? 'active' : '' %> cursor-pointer" data-target="#account-general">General</a>
-                            <a class="block py-3 px-6 border-b border-gray-100 text-gray-600 hover:text-gray-800 tab-link <%= activeTab === 'change-password' ? 'active' : '' %> cursor-pointer" data-target="#account-change-password">Change password</a>
-                            <a class="block py-3 px-6 border-b border-gray-100 text-gray-600 hover:text-gray-800 tab-link <%= activeTab === 'info' ? 'active' : '' %> cursor-pointer" data-target="#account-info">Info</a>
-                            <a class="block py-3 px-6 border-b border-gray-100 text-gray-600 hover:text-gray-800 tab-link <%= activeTab === 'social-links' ? 'active' : '' %> cursor-pointer" data-target="#account-social-links">Social links</a>
-                            <a class="block py-3 px-6 border-b border-gray-100 text-gray-600 hover:text-gray-800 tab-link <%= activeTab === 'notifications' ? 'active' : '' %> cursor-pointer" data-target="#account-notifications">Notifications</a>
+                        <div class="h-full bg-gray-50 border-r border-gray-200">
+                            <a class="flex items-center py-3 px-6 border-b border-gray-100 hover:bg-light tab-link <%= activeTab === 'general' ? 'active' : '' %> cursor-pointer transition-colors duration-200" data-target="#account-general">
+                                <i class="fas fa-user-circle mr-3 text-lg text-primary"></i>
+                                <span>General</span>
+                            </a>
+                            <a class="flex items-center py-3 px-6 border-b border-gray-100 hover:bg-light tab-link <%= activeTab === 'change-password' ? 'active' : '' %> cursor-pointer transition-colors duration-200" data-target="#account-change-password">
+                                <i class="fas fa-lock mr-3 text-lg text-primary"></i>
+                                <span>Change password</span>
+                            </a>
+                            <a class="flex items-center py-3 px-6 border-b border-gray-100 hover:bg-light tab-link <%= activeTab === 'info' ? 'active' : '' %> cursor-pointer transition-colors duration-200" data-target="#account-info">
+                                <i class="fas fa-info-circle mr-3 text-lg text-primary"></i>
+                                <span>Info</span>
+                            </a>
+                            <a class="flex items-center py-3 px-6 border-b border-gray-100 hover:bg-light tab-link <%= activeTab === 'social-links' ? 'active' : '' %> cursor-pointer transition-colors duration-200" data-target="#account-social-links">
+                                <i class="fas fa-share-alt mr-3 text-lg text-primary"></i>
+                                <span>Social links</span>
+                            </a>
+                            <a class="flex items-center py-3 px-6 border-b border-gray-100 hover:bg-light tab-link <%= activeTab === 'notifications' ? 'active' : '' %> cursor-pointer transition-colors duration-200" data-target="#account-notifications">
+                                <i class="fas fa-bell mr-3 text-lg text-primary"></i>
+                                <span>Notifications</span>
+                            </a>
                         </div>
                     </div>
                     <div class="w-full md:w-3/4">
                         <div class="tab-content">
                             <!-- General Tab -->
                             <div class="tab-pane <%= activeTab === 'general' ? 'active' : '' %>" id="account-general">
-                                <div class="p-6 flex items-center">
-                                    <% if (user.profilePicture && user.profilePicture.data) { %>
-                                        <img src="data:<%= user.profilePicture.contentType %>;base64,<%= user.profilePicture.data.toString('base64') %>" 
-                                             alt="Profile Picture" class="ui-w-80 rounded-full">
-                                    <% } else { %>
-                                        <div class="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-sm font-bold text-purple-600">
-                                            <%= user.firstname.charAt(0).toUpperCase() %><%= user.surname.charAt(0).toUpperCase() %>
+                                <div class="p-6 flex flex-col md:flex-row items-center md:items-start border-b border-gray-200">
+                                    <div class="flex flex-col items-center mb-4 md:mb-0">
+                                        <div class="profile-picture-container">
+                                        <% if (user.profilePicture && user.profilePicture.data) { %>
+                                            <img src="data:<%= user.profilePicture.contentType %>;base64,<%= user.profilePicture.data.toString('base64') %>" 
+                                                 alt="Profile Picture" 
+                                                 class="w-24 h-24 rounded-full object-cover border-4 border-light">
+                                        <% } else { %>
+                                            <div class="w-24 h-24 rounded-full bg-light flex items-center justify-center text-2xl font-bold text-primary border-4 border-light">
+                                                <%= user.firstname.charAt(0).toUpperCase() %><%= user.surname.charAt(0).toUpperCase() %>
+                                            </div>
+                                        <% } %>
                                         </div>
-                                    <% } %>
-                                    <div class="ml-4">
-                                        <label class="inline-flex items-center px-4 py-2 border border-primary rounded-md text-primary cursor-pointer hover:bg-blue-50">
-                                            Upload new photo
-                                            <input type="file" name="profilePicture" class="account-settings-fileinput" accept="image/*">
-                                        </label>
-                                        <button type="button" class="ml-2 px-4 py-2 border border-gray-200 rounded-md text-gray-600 hover:bg-gray-50">Reset</button>
-                                        <div class="text-light text-sm mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+                                    </div>
+                                    <div class="md:ml-6 flex flex-col items-center md:items-start">
+                                        <h5 class="text-xl font-semibold mb-2"><%= user.firstname %> <%= user.surname %></h5>
+                                        <p class="text-gray-600 mb-4"><%= user.email %></p>
+                                        <div class="flex flex-wrap gap-2">
+                                            <label class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md cursor-pointer hover:bg-accent transition-colors duration-200">
+                                                <i class="fas fa-upload mr-2"></i> Upload photo
+                                                <input type="file" name="profilePicture" class="account-settings-fileinput" accept="image/*">
+                                            </label>
+                                            <button type="button" id="remove-photo-btn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                                                <i class="fas fa-trash-alt mr-2"></i> Remove
+                                            </button>
+                                            <input type="hidden" name="removeProfilePicture" id="remove-profile-picture" value="false">
+                                        </div>
+                                        <div class="text-gray-500 text-sm mt-2">Allowed JPG, GIF or PNG. Max size of 800K</div>
                                     </div>
                                 </div>
                                 <hr class="border-gray-200 m-0">
                                 <div class="p-6">
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">First Name</label>
-                                        <input type="text" name="firstname" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="<%= user.firstname || '' %>">
+                                    <div class="card-header">
+                                        <h5 class="mb-0 font-medium">Basic Information</h5>
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Surname</label>
-                                        <input type="text" name="surname" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="<%= user.surname || '' %>">
-                                    </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">E-mail</label>
-                                        <input type="text" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-1" value="<%= user.email || '' %>">
-                                        <% if (!user.emailVerified) { %>
-                                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mt-3">
-                                                <div class="text-yellow-700">
-                                                    <p>Your email is not confirmed. Please check your inbox.<br>
-                                                        <a href="javascript:void(0)" class="text-yellow-700 underline">Resend confirmation</a>
-                                                    </p>
+                                    <hr class="border-gray-200 m-0">
+                                    <div class="profile-message">
+                                        <% if (locals.success) { %>
+                                        <div class="bg-green-50 border-l-4 border-green-400 p-3 mb-4 mt-4">
+                                            <div class="flex items-center">
+                                                <div class="text-green-700">
+                                                    <i class="fas fa-check-circle mr-2"></i>
+                                                </div>
+                                                <div class="text-green-700">
+                                                    <p><%= success %></p>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <% } %>
+                                        <% if (locals.error) { %>
+                                        <div class="bg-red-50 border-l-4 border-red-400 p-3 mb-4 mt-4">
+                                            <div class="flex items-center">
+                                                <div class="text-red-700">
+                                                    <i class="fas fa-exclamation-circle mr-2"></i>
+                                                </div>
+                                                <div class="text-red-700">
+                                                    <p><%= error %></p>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <% } %>
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Company</label>
-                                        <input type="text" name="company" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="<%= user.company || '' %>">
+                                    <div class="p-6">
+                                        <div class="mb-5">
+                                            <label class="block text-gray-700 mb-2 font-medium">First Name</label>
+                                            <div class="relative">
+                                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                                    <i class="fas fa-user"></i>
+                                                </span>
+                                                <input type="text" name="firstname" class="form-input pl-10" value="<%= user.firstname || '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="mb-5">
+                                            <label class="block text-gray-700 mb-2 font-medium">Surname</label>
+                                            <div class="relative">
+                                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                                    <i class="fas fa-user"></i>
+                                                </span>
+                                                <input type="text" name="surname" class="form-input pl-10" value="<%= user.surname || '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="mb-5">
+                                            <label class="block text-gray-700 mb-2 font-medium">E-mail</label>
+                                            <div class="relative">
+                                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                                    <i class="fas fa-envelope"></i>
+                                                </span>
+                                                <input type="text" name="email" class="form-input pl-10" value="<%= user.email || '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="mb-5">
+                                            <label class="block text-gray-700 mb-2 font-medium">Company</label>
+                                            <div class="relative">
+                                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                                    <i class="fas fa-building"></i>
+                                                </span>
+                                                <input type="text" name="company" class="form-input pl-10" value="<%= user.company || '' %>">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -187,17 +332,32 @@
                             <!-- Change Password Tab -->
                             <div class="tab-pane <%= activeTab === 'change-password' ? 'active' : '' %>" id="account-change-password">
                                 <div class="p-6 pb-2">
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Current password</label>
-                                        <input type="password" name="currentPassword" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">Current password</label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                                <i class="fas fa-lock"></i>
+                                            </span>
+                                            <input type="password" name="currentPassword" class="form-input pl-10">
+                                        </div>
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">New password</label>
-                                        <input type="password" name="newPassword" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">New password</label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                                <i class="fas fa-key"></i>
+                                            </span>
+                                            <input type="password" name="newPassword" class="form-input pl-10">
+                                        </div>
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Repeat new password</label>
-                                        <input type="password" name="confirmPassword" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">Repeat new password</label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                                <i class="fas fa-key"></i>
+                                            </span>
+                                            <input type="password" name="confirmPassword" class="form-input pl-10">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -205,35 +365,42 @@
                             <!-- Info Tab -->
                             <div class="tab-pane <%= activeTab === 'info' ? 'active' : '' %>" id="account-info">
                                 <div class="p-6 pb-2">
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Bio</label>
-                                        <textarea name="bio" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5"><%= user.bio || '' %></textarea>
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">Bio</label>
+                                        <textarea name="bio" class="form-input" rows="5"><%= user.bio || '' %></textarea>
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Birthday</label>
-                                        <input type="date" name="birthday" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="<%= user.birthday ? new Date(user.birthday).toISOString().split('T')[0] : '' %>">
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">Birthday</label>
+                                        <input type="date" name="birthday" class="form-input" value="<%= user.birthday ? new Date(user.birthday).toISOString().split('T')[0] : '' %>">
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Country</label>
-                                        <select name="country" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
-                                            <option value="USA" <%= user.country === 'USA' ? 'selected' : '' %>>USA</option>
-                                            <option value="Canada" <%= user.country === 'Canada' ? 'selected' : '' %>>Canada</option>
-                                            <option value="UK" <%= user.country === 'UK' ? 'selected' : '' %>>UK</option>
-                                            <option value="Germany" <%= user.country === 'Germany' ? 'selected' : '' %>>Germany</option>
-                                            <option value="France" <%= user.country === 'France' ? 'selected' : '' %>>France</option>
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">Country</label>
+                                        <select name="State" class="form-input bg-white">
+                                            <option value="West Bengal" <%= user.country === 'West Bengal' ? 'selected' : '' %>>West Bengal</option>
+                                            <option value="Karnataka" <%= user.country === 'Karnataka' ? 'selected' : '' %>>Karnataka</option>
+                                            <option value="Tamil Nadu" <%= user.country === 'Tamil Nadu' ? 'selected' : '' %>>Tamil Nadu</option>
+                                            <option value="Kerala" <%= user.country === 'Kerala' ? 'selected' : '' %>>Kerala</option>
+                                            <option value="Maharashtra" <%= user.country === 'Maharashtra' ? 'selected' : '' %>>Maharashtra</option>
+                                            <option value="Gujarat" <%= user.country === 'Gujarat' ? 'selected' : '' %>>Gujarat</option>
+                                            <option value="Haryana" <%= user.country === 'Haryana' ? 'selected' : '' %>>Haryana</option>
+                                            <option value="Punjab" <%= user.country === 'Punjab' ? 'selected' : '' %>>Punjab</option>
+                                            <option value="Rajasthan" <%= user.country === 'Rajasthan' ? 'selected' : '' %>>Rajasthan</option>
+                                            <option value="Tamil Nadu" <%= user.country === 'Tamil Nadu' ? 'selected' : '' %>>Tamil Nadu</option>
+                                            <option value="Maharashtra" <%= user.country === 'Maharashtra' ? 'selected' : '' %>>Maharashtra</option>
+                                            
                                         </select>
                                     </div>
                                 </div>
                                 <hr class="border-gray-200 m-0">
                                 <div class="p-6 pb-2">
                                     <h6 class="mb-4 font-medium">Contacts</h6>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Phone</label>
-                                        <input type="text" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="<%= user.phone || '' %>">
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">Phone</label>
+                                        <input type="text" name="phone" class="form-input" value="<%= user.phone || '' %>">
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Website</label>
-                                        <input type="url" name="website" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="<%= user.website || '' %>">
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">Website</label>
+                                        <input type="url" name="website" class="form-input" value="<%= user.website || '' %>">
                                     </div>
                                 </div>
                             </div>
@@ -241,21 +408,41 @@
                             <!-- Social Links Tab -->
                             <div class="tab-pane <%= activeTab === 'social-links' ? 'active' : '' %>" id="account-social-links">
                                 <div class="p-6 pb-2">
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Twitter</label>
-                                        <input type="url" name="twitter" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="<%= user.socialLinks && user.socialLinks.twitter || '' %>">
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">Twitter</label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-400">
+                                                <i class="fab fa-twitter"></i>
+                                            </span>
+                                            <input type="url" name="twitter" class="form-input pl-10" value="<%= user.socialLinks && user.socialLinks.twitter || '' %>" placeholder="https://twitter.com/username">
+                                        </div>
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Facebook</label>
-                                        <input type="url" name="facebook" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="<%= user.socialLinks?.facebook || '' %>">
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">Facebook</label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
+                                                <i class="fab fa-facebook-f"></i>
+                                            </span>
+                                            <input type="url" name="facebook" class="form-input pl-10" value="<%= user.socialLinks?.facebook || '' %>" placeholder="https://facebook.com/username">
+                                        </div>
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">Instagram</label>
-                                        <input type="url" name="instagram" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="<%= user.socialLinks?.instagram || '' %>">
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">Instagram</label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-pink-600">
+                                                <i class="fab fa-instagram"></i>
+                                            </span>
+                                            <input type="url" name="instagram" class="form-input pl-10" value="<%= user.socialLinks?.instagram || '' %>" placeholder="https://instagram.com/username">
+                                        </div>
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 mb-1">LinkedIn</label>
-                                        <input type="url" name="linkedin" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="<%= user.socialLinks?.linkedin || '' %>">
+                                    <div class="mb-5">
+                                        <label class="block text-gray-700 mb-2 font-medium">LinkedIn</label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-700">
+                                                <i class="fab fa-linkedin-in"></i>
+                                            </span>
+                                            <input type="url" name="linkedin" class="form-input pl-10" value="<%= user.socialLinks?.linkedin || '' %>" placeholder="https://linkedin.com/in/username">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -263,33 +450,33 @@
                             <!-- Notifications Tab -->
                             <div class="tab-pane <%= activeTab === 'notifications' ? 'active' : '' %>" id="account-notifications">
                                 <div class="p-6 pb-2">
-                                    <h6 class="mb-4 font-medium">Activity</h6>
-                                    <div class="mb-4 flex items-center">
-                                        <input type="checkbox" name="articleComments" class="form-checkbox h-5 w-5 text-blue-600" <%= user.notifications && user.notifications.articleComments ? 'checked' : '' %>>
+                                    <h6 class="mb-4 font-medium text-lg">Activity Notifications</h6>
+                                    <div class="mb-5 flex items-center hover:bg-gray-50 p-2 rounded-md transition-colors">
+                                        <input type="checkbox" name="articleComments" class="form-checkbox h-5 w-5 text-primary rounded" <%= user.notifications && user.notifications.articleComments ? 'checked' : '' %>>
                                         <span class="ml-2">Email me when someone comments on my article</span>
                                     </div>
-                                    <div class="mb-4 flex items-center">
-                                        <input type="checkbox" name="forumAnswers" class="form-checkbox h-5 w-5 text-blue-600" <%= user.notifications?.forumAnswers ? 'checked' : '' %>>
+                                    <div class="mb-5 flex items-center hover:bg-gray-50 p-2 rounded-md transition-colors">
+                                        <input type="checkbox" name="forumAnswers" class="form-checkbox h-5 w-5 text-primary rounded" <%= user.notifications?.forumAnswers ? 'checked' : '' %>>
                                         <span class="ml-2">Email me when someone answers on my forum thread</span>
                                     </div>
-                                    <div class="mb-4 flex items-center">
-                                        <input type="checkbox" name="follows" class="form-checkbox h-5 w-5 text-blue-600" <%= user.notifications?.follows ? 'checked' : '' %>>
+                                    <div class="mb-5 flex items-center hover:bg-gray-50 p-2 rounded-md transition-colors">
+                                        <input type="checkbox" name="follows" class="form-checkbox h-5 w-5 text-primary rounded" <%= user.notifications?.follows ? 'checked' : '' %>>
                                         <span class="ml-2">Email me when someone follows me</span>
                                     </div>
                                 </div>
                                 <hr class="border-gray-200 m-0">
                                 <div class="p-6 pb-2">
-                                    <h6 class="mb-4 font-medium">Application</h6>
-                                    <div class="mb-4 flex items-center">
-                                        <input type="checkbox" name="announcements" class="form-checkbox h-5 w-5 text-blue-600" <%= user.notifications?.announcements ? 'checked' : '' %>>
+                                    <h6 class="mb-4 font-medium text-lg">Application Updates</h6>
+                                    <div class="mb-5 flex items-center hover:bg-gray-50 p-2 rounded-md transition-colors">
+                                        <input type="checkbox" name="announcements" class="form-checkbox h-5 w-5 text-primary rounded" <%= user.notifications?.announcements ? 'checked' : '' %>>
                                         <span class="ml-2">News and announcements</span>
                                     </div>
-                                    <div class="mb-4 flex items-center">
-                                        <input type="checkbox" name="productUpdates" class="form-checkbox h-5 w-5 text-blue-600" <%= user.notifications?.productUpdates ? 'checked' : '' %>>
+                                    <div class="mb-5 flex items-center hover:bg-gray-50 p-2 rounded-md transition-colors">
+                                        <input type="checkbox" name="productUpdates" class="form-checkbox h-5 w-5 text-primary rounded" <%= user.notifications?.productUpdates ? 'checked' : '' %>>
                                         <span class="ml-2">Weekly product updates</span>
                                     </div>
-                                    <div class="mb-4 flex items-center">
-                                        <input type="checkbox" name="blogDigest" class="form-checkbox h-5 w-5 text-blue-600" <%= user.notifications?.blogDigest ? 'checked' : '' %>>
+                                    <div class="mb-5 flex items-center hover:bg-gray-50 p-2 rounded-md transition-colors">
+                                        <input type="checkbox" name="blogDigest" class="form-checkbox h-5 w-5 text-primary rounded" <%= user.notifications?.blogDigest ? 'checked' : '' %>>
                                         <span class="ml-2">Weekly blog digest</span>
                                     </div>
                                 </div>
@@ -298,9 +485,13 @@
                     </div>
                 </div>
             </div>
-            <div class="text-right mt-3">
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Save changes</button>
-                <button type="button" class="ml-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+            <div class="flex justify-end mt-6 space-x-3 hidden" id="action-buttons">
+                <button type="button" id="cancel-btn" class="btn-secondary flex items-center">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </button>
+                <button type="submit" class="btn-primary flex items-center">
+                    <i class="fas fa-save mr-2"></i> Save changes
+                </button>
             </div>
         </form>
     </div>
@@ -308,6 +499,99 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        $(function() {
+            // File upload preview
+            $('.account-settings-fileinput').on('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        // Show preview of the uploaded image
+                        $('.profile-picture-container').html(`
+                            <img src="${e.target.result}" alt="Profile Picture Preview" 
+                                 class="w-24 h-24 rounded-full object-cover border-4 border-light">
+                        `);
+                        
+                        // Show success message
+                        $('.profile-message').html(`
+                            <div class="bg-green-50 border-l-4 border-green-400 p-3 mb-4 mt-4">
+                                <div class="flex items-center">
+                                    <div class="text-green-700">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                    </div>
+                                    <div class="text-green-700">
+                                        <p>New profile picture will be applied after saving changes.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                        
+                        // Show cancel button
+                        $('#action-buttons').removeClass('hidden');
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            // Remove profile picture button click handler
+            $('#remove-photo-btn').click(function() {
+                $('#remove-profile-picture').val('true');
+                
+                // Update UI to show default avatar with initials
+                const firstName = '<%= user.firstname %>';
+                const surname = '<%= user.surname %>';
+                const initials = firstName.charAt(0).toUpperCase() + surname.charAt(0).toUpperCase();
+                
+                // Replace image with default avatar div
+                $('.profile-picture-container').html(`
+                    <div class="w-24 h-24 rounded-full bg-light flex items-center justify-center text-2xl font-bold text-primary border-4 border-light">
+                        ${initials}
+                    </div>
+                `);
+                
+                // Show success message
+                $('.profile-message').html(`
+                    <div class="bg-green-50 border-l-4 border-green-400 p-3 mb-4 mt-4">
+                        <div class="flex items-center">
+                            <div class="text-green-700">
+                                <i class="fas fa-check-circle mr-2"></i>
+                            </div>
+                            <div class="text-green-700">
+                                <p>Profile picture will be removed after saving changes.</p>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                
+                // Show cancel button
+                $('#action-buttons').removeClass('hidden');
+            });
+            
+            // Cancel button click handler
+            $('#cancel-btn').click(function(e) {
+                e.preventDefault();
+                
+                // Reset the form to its original state
+                location.reload();
+            });
+            
+            // Form change detection
+            const originalFormData = $('form').serialize();
+            
+            // Check for changes in the form
+            $('form :input').on('change input', function() {
+                const currentFormData = $('form').serialize();
+                if (currentFormData !== originalFormData) {
+                    // Show action buttons if form has changed
+                    $('#action-buttons').removeClass('hidden');
+                } else {
+                    // Hide action buttons if form is back to original state
+                    $('#action-buttons').addClass('hidden');
+                }
+            });
+        });
+
         $(document).ready(function() {
             // Tab functionality
             $('.tab-link').click(function(e) {
@@ -342,57 +626,55 @@
                     reader.readAsDataURL(this.files[0]);
                 }
             });
-        });
 
-        $(document).ready(function() {
-        // Form submission handler
-        $('form').submit(function(e) {
-            // Validate required fields
-            const requiredFields = ['firstname', 'surname', 'email'];
-            let isValid = true;
-            
-            requiredFields.forEach(field => {
-                const value = $(`[name="${field}"]`).val().trim();
-                if (!value) {
-                    alert(`${field} is required`);
-                    isValid = false;
+            // Form submission handler
+            $('form').submit(function(e) {
+                // Validate required fields
+                const requiredFields = ['firstname', 'surname', 'email'];
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    const value = $(`[name="${field}"]`).val().trim();
+                    if (!value) {
+                        alert(`${field} is required`);
+                        isValid = false;
+                        return false;
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
                     return false;
                 }
+                
+                // Show loading state
+                $('button[type="submit"]').html(`
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                `).prop('disabled', true);
             });
-            
-            if (!isValid) {
-                e.preventDefault();
-                return false;
-            }
-            
-            // Show loading state
-            $('button[type="submit"]').html(`
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Saving...
-            `).prop('disabled', true);
         });
-    });
-    
-    // Toggle dropdown menu
-    const userMenuButton = document.getElementById('user-menu-button');
-    const userMenu = document.getElementById('user-menu');
-    
-    userMenuButton.addEventListener('click', () => {
-        const expanded = userMenuButton.getAttribute('aria-expanded') === 'true';
-        userMenuButton.setAttribute('aria-expanded', !expanded);
-        userMenu.classList.toggle('hidden');
-    });
-    
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (event) => {
-        if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
-            userMenuButton.setAttribute('aria-expanded', 'false');
-            userMenu.classList.add('hidden');
-        }
-    });
+        
+        // Toggle dropdown menu
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-menu');
+        
+        userMenuButton.addEventListener('click', () => {
+            const expanded = userMenuButton.getAttribute('aria-expanded') === 'true';
+            userMenuButton.setAttribute('aria-expanded', !expanded);
+            userMenu.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenuButton.setAttribute('aria-expanded', 'false');
+                userMenu.classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>

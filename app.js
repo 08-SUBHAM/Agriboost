@@ -284,6 +284,16 @@ app.post('/profile', checkAuth, upload.single('profilePicture'), async (req, res
             };
         }
 
+        // Handle profile picture removal if requested
+        if (req.body.removeProfilePicture === 'true') {
+            updates.profilePicture = undefined;
+            // Use $unset to completely remove the field from the document
+            await userModel.updateOne(
+                { _id: req.user.id },
+                { $unset: { profilePicture: "" } }
+            );
+        }
+
         // Update user and get the updated document
         const updatedUser = await userModel.findByIdAndUpdate(
             req.user.id,
@@ -600,6 +610,21 @@ async function startAutomaticNewsFetching() {
 app.use('/api/forum', forumRoutes);
 
 // News tracking endpoints
+app.post('/api/news/track-click', async (req, res) => {
+    try {
+        const { articleId } = req.body;
+        if (!articleId) {
+            return res.status(400).json({ error: 'Article ID is required' });
+        }
+        
+        await News.incrementClicksById(articleId);
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('Error tracking news click:', error);
+        return res.status(500).json({ error: 'Failed to track click' });
+    }
+});
+
 app.post('/api/news/:id/view', checkAuth, async (req, res) => {
     try {
         await newsService.incrementViews(req.params.id);

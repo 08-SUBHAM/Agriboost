@@ -9,39 +9,63 @@ class NewsService {
     constructor() {
         this.sources = [
             {
-                name: 'AgriNews',
-                url: 'https://www.agrinews-pubs.com/news/',
+                name: 'Indian Express Agriculture',
+                url: 'https://indianexpress.com/section/india/agriculture-2/',
                 selector: {
-                    article: '.card',
-                    title: '.card-title',
-                    description: '.card-text',
-                    link: '.card-title a',
-                    image: '.card-img-top',
-                    date: '.card-footer'
+                    article: '.articles',
+                    title: 'h2.title',
+                    description: '.synopsis',
+                    link: 'h2.title a',
+                    image: '.snaps img',
+                    date: '.date'
                 }
             },
             {
-                name: 'Agriculture.com',
-                url: 'https://www.agriculture.com/news',
+                name: 'Krishi Jagran',
+                url: 'https://krishijagran.com/',
                 selector: {
-                    article: '.teaser',
-                    title: '.teaser__title',
-                    description: '.teaser__text',
-                    link: '.teaser__title a',
-                    image: '.teaser__image img',
-                    date: '.teaser__date'
+                    article: '.article-box',
+                    title: '.article-title',
+                    description: '.article-summary',
+                    link: '.article-title a',
+                    image: '.article-image img',
+                    date: '.article-date'
                 }
             },
             {
-                name: 'Modern Farmer',
-                url: 'https://modernfarmer.com/category/news',
+                name: 'The Hindu Agriculture',
+                url: 'https://www.thehindu.com/business/agri-business/',
                 selector: {
-                    article: '.article-preview',
-                    title: '.article-preview__title',
-                    description: '.article-preview__excerpt',
-                    link: '.article-preview__title a',
-                    image: '.article-preview__image img',
-                    date: '.article-preview__date'
+                    article: '.story-card',
+                    title: '.story-card-headline',
+                    description: '.story-card-summary',
+                    link: '.story-card-headline a',
+                    image: '.story-card-img img',
+                    date: '.story-card-dateline'
+                }
+            },
+            {
+                name: 'Down To Earth Agriculture',
+                url: 'https://www.downtoearth.org.in/category/agriculture/news',
+                selector: {
+                    article: '.news-item',
+                    title: '.news-title',
+                    description: '.news-description',
+                    link: '.news-title a',
+                    image: '.news-image img',
+                    date: '.news-date'
+                }
+            },
+            {
+                name: 'Rural Marketing',
+                url: 'https://ruralmarketing.in/category/agriculture/',
+                selector: {
+                    article: '.post',
+                    title: '.entry-title',
+                    description: '.entry-content p',
+                    link: '.entry-title a',
+                    image: '.post-thumbnail img',
+                    date: '.entry-date'
                 }
             }
         ];
@@ -56,17 +80,32 @@ class NewsService {
                 console.warn('NewsAPI key not found. Skipping NewsAPI fetch.');
                 return [];
             }
+            // Store the current source name for region detection
+            this.currentSource = source.name;
+            
+            console.log(`Attempting to fetch from ${source.name} with API key...`);
+            
             const response = await axios.get(source.url, { 
                 params: source.params,
-                timeout: 10000 // 10 second timeout
+                timeout: 10000, // 10 second timeout
+                headers: {
+                    'X-Api-Key': this.apiKey
+                }
             });
+            
             if (!response.data || !response.data.articles) {
                 console.warn(`No articles found from ${source.name}`);
                 return [];
             }
+            
+            console.log(`Successfully fetched ${response.data.articles.length} articles from ${source.name}`);
             return response.data.articles.map(article => this.transformArticle(article, source.name));
         } catch (error) {
-            console.error(`Error fetching from ${source.name}:`, error.message);
+            console.error(`Error fetching from ${source.name}: ${error.message}`);
+            if (error.response) {
+                console.error(`Status: ${error.response.status}`);
+                console.error(`Data:`, error.response.data);
+            }
             return [];
         }
     }
@@ -74,6 +113,9 @@ class NewsService {
     async fetchFromScrape(source) {
         try {
             console.log(`Attempting to fetch from ${source.name}...`);
+            // Store the current source name for region detection
+            this.currentSource = source.name;
+            
             const response = await axios.get(source.url, {
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -270,15 +312,59 @@ class NewsService {
 
     determineRegion(title, description) {
         const text = (title + ' ' + description).toLowerCase();
-        if (text.includes('global') || text.includes('international')) return 'global';
-        if (text.includes('state') || text.includes('local')) return 'local';
-        return 'national';
+        
+        // Check for Indian regions, states, and cities
+        const indianKeywords = [
+            'india', 'indian', 'delhi', 'mumbai', 'bangalore', 'chennai', 'kolkata', 
+            'hyderabad', 'punjab', 'haryana', 'uttar pradesh', 'madhya pradesh', 
+            'gujarat', 'rajasthan', 'bihar', 'maharashtra', 'karnataka', 'tamil nadu',
+            'telangana', 'kerala', 'odisha', 'assam', 'rupee', 'rupees', 'rs.'
+        ];
+        
+        for (const keyword of indianKeywords) {
+            if (text.includes(keyword)) return 'india';
+        }
+        
+        // Default to India for all news sources since we're only keeping Indian sources
+        return 'india';
     }
 
     async fetchAndStoreNews() {
         try {
             console.log('Starting news fetch from all sources...');
             const allArticles = [];
+
+            // Add NewsAPI source for Indian agriculture news
+            if (this.apiKey) {
+                console.log('Fetching Indian agriculture news from NewsAPI...');
+                try {
+                    const newsApiSource = {
+                        name: 'NewsAPI India Agriculture',
+                        type: 'api',
+                        url: `${this.newsApiUrl}/everything`,
+                        params: {
+                            apiKey: this.apiKey,
+                            q: '(agriculture OR farming OR crops OR farmers OR "rural development") AND (india OR indian OR "uttar pradesh" OR punjab OR haryana OR gujarat OR rajasthan OR maharashtra OR karnataka OR "tamil nadu" OR telangana OR kerala)',
+                            language: 'en',
+                            sortBy: 'publishedAt',
+                            pageSize: 20
+                        }
+                    };
+                    
+                    const newsApiArticles = await this.fetchFromAPI(newsApiSource);
+                    if (newsApiArticles.length > 0) {
+                        console.log(`Found ${newsApiArticles.length} articles from NewsAPI`);
+                        allArticles.push(...newsApiArticles);
+                    } else {
+                        console.log('No articles found from NewsAPI, trying alternative sources');
+                    }
+                } catch (error) {
+                    console.error('Error with NewsAPI fetch:', error.message);
+                    console.log('Continuing with other sources...');
+                }
+            } else {
+                console.log('No NewsAPI key provided, skipping NewsAPI fetch');
+            }
 
             for (const source of this.sources) {
                 console.log(`Fetching from ${source.name}...`);

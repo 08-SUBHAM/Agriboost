@@ -38,7 +38,7 @@ const newsSchema = new mongoose.Schema({
     }],
     region: {
         type: String,
-        enum: ['global', 'national', 'state', 'local'],
+        enum: ['global', 'national', 'state', 'local', 'india'],
         default: 'national'
     },
     state: {
@@ -123,6 +123,21 @@ newsSchema.statics.getLatestByCategory = function(category, limit = 10) {
     return this.find({ category })
         .sort({ publishedAt: -1 })
         .limit(limit);
+};
+
+// Static method to increment clicks by article ID
+newsSchema.statics.incrementClicksById = async function(id) {
+    try {
+        const article = await this.findById(id);
+        if (!article) {
+            throw new Error('Article not found');
+        }
+        article.clicks += 1;
+        return article.save();
+    } catch (error) {
+        console.error('Error incrementing clicks:', error);
+        throw error;
+    }
 };
 
 // Export the model
