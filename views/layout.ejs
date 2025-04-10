@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBoost</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script>
+        // Add error handling for script loading
+        window.addEventListener('error', function(e) {
+            console.error('Script loading error:', e.target.src || 'unknown script');
+        }, true);
+        
+        // Log when the page starts loading
+        console.log('Page loading started');
+    </script>
+</head>
+<body>
+    <%- body %>
+    
+    <!-- Load sound system scripts -->
+    <script>
+        console.log('About to load sound system scripts');
+    </script>
+    <script src="/javascripts/sound.js" onerror="console.error('Failed to load sound.js')" onload="console.log('sound.js loaded successfully')"></script>
+    <script src="/javascripts/soundControls.js" onerror="console.error('Failed to load soundControls.js')" onload="console.log('soundControls.js loaded successfully')"></script>
+    <script>
+        console.log('Layout loaded, initializing sound system');
+        
+        // Initialize SoundManager
+        if (typeof SoundManager === 'undefined') {
+            console.error('SoundManager not found! Check if sound.js is loading correctly.');
+        } else {
+            console.log('SoundManager found, initializing');
+            try {
+                SoundManager.init();
+                console.log('SoundManager initialized successfully');
+                
+                // Initialize SoundControls after SoundManager
+                if (typeof SoundControls !== 'undefined') {
+                    SoundControls.init({
+                        showVolumeControls: false,
+                        position: 'bottom-right'
+                    });
+                    console.log('SoundControls initialized successfully');
+                } else {
+                    console.error('SoundControls not found! Check if soundControls.js is loading correctly.');
+                }
+            } catch (error) {
+                console.error('Error initializing sound system:', error);
+            }
+        }
+    </script>
+</body>
+</html>

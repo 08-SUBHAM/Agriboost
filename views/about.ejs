@@ -91,50 +91,67 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div class="animate-fade-in">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
-                    <p class="text-lg text-gray-600 mb-6">
-                        At AgriBoost, we're dedicated to revolutionizing agriculture through technology. Our mission is to empower farmers with innovative solutions that enhance productivity, sustainability, and profitability.
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 relative inline-block">
+                        Our Mission
+                        <span class="absolute bottom-0 left-0 w-1/2 h-1 bg-green-500"></span>
+                    </h2>
+                    <p class="text-lg text-gray-700 mb-8 leading-relaxed">
+                        At AgriBoost, we’re revolutionizing agriculture with cutting-edge technology — empowering farmers with smart solutions that boost productivity, promote sustainability, and drive profitability in a changing climate.
                     </p>
-                    <div class="space-y-4">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-leaf text-green-600 text-xl"></i>
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500 transform transition-transform duration-300 hover:scale-105 hover:shadow-md">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-leaf text-green-600 text-xl"></i>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-semibold text-gray-900">Sustainable Farming</h3>
-                                <p class="text-gray-600">Promoting environmentally conscious agricultural practices</p>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Sustainable Farming</h3>
+                                    <p class="text-gray-600">Promoting eco-friendly practices that preserve our planet for future generations</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500 transform transition-transform duration-300 hover:scale-105 hover:shadow-md">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-semibold text-gray-900">Increased Productivity</h3>
-                                <p class="text-gray-600">Optimizing crop yields through data-driven insights</p>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Data-Driven Growth</h3>
+                                    <p class="text-gray-600">Maximizing yields through AI-powered insights and precision agriculture</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-users text-green-600 text-xl"></i>
+                        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-purple-500 transform transition-transform duration-300 hover:scale-105 hover:shadow-md">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-users text-purple-600 text-xl"></i>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-semibold text-gray-900">Farmer Empowerment</h3>
-                                <p class="text-gray-600">Providing tools and knowledge for better decision-making</p>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Farmer Empowerment</h3>
+                                    <p class="text-gray-600">Equipping farmers with knowledge and tools for smarter decision-making</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="relative animate-fade-in">
-                    <img src="https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-                         alt="Farmer using technology" 
-                         class="rounded-lg shadow-xl hover-scale">
+                    <div class="relative rounded-lg overflow-hidden shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                             alt="Farmer using technology" 
+                             class="w-full h-full object-cover transform transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end">
+                            <p class="text-white text-sm p-4 font-medium">Transforming agriculture through innovation and technology</p>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 bg-green-500 text-white px-6 py-2 rounded-lg shadow-lg transform rotate-2">
+                        Since 2025
+                    </div>
                 </div>
             </div>
         </div>
@@ -186,90 +203,140 @@
         </div>
     </section>
 
-    <!-- Team Section -->
+    <!-- Developer Story Section -->
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Our Team</h2>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">About the Developer</h2>
                 <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Meet the passionate individuals behind AgriBoost
+                    The story behind AgriBoost and its creation
                 </p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Team Member 1 -->
-                <div class="text-center hover-scale animate-fade-in">
-                    <div class="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                             alt="Team member" 
-                             class="w-full h-full object-cover">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="text-center md:text-left hover-scale animate-fade-in order-2 md:order-1">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">A Passion for Agricultural Innovation</h3>
+                    <p class="text-lg text-gray-600 mb-6">
+                        AgriBoost was created by a passionate developer driven by a mission to make technology meaningful for those who need it most — our farmers.
+                    </p>
+                    <p class="text-lg text-gray-600 mb-6">
+                        With a strong background in software development and a deep curiosity for solving real-world problems, this project began as a personal challenge — and quickly grew into a full-fledged platform.
+                    </p>
+                    <p class="text-lg text-gray-600 mb-6">
+                        By integrating AI, weather intelligence, and market data, AgriBoost empowers farmers to make smarter decisions, improve productivity, and adapt to a rapidly changing environment.
+                    </p>
+                    <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Full-stack Development</span>
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Agricultural Tech</span>
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Data Science</span>
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">UI/UX Design</span>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900">John Doe</h3>
-                    <p class="text-green-600 mb-2">CEO & Founder</p>
-                    <p class="text-gray-600">20+ years of agricultural experience</p>
                 </div>
-
-                <!-- Team Member 2 -->
-                <div class="text-center hover-scale animate-fade-in">
-                    <div class="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                             alt="Team member" 
+                <div class="order-1 md:order-2 mb-8 md:mb-0">
+                    <div class="relative mx-auto w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-green-500 shadow-xl hover-scale animate-fade-in">
+                        <img src="/images/sonu.JPG" 
+                             alt="Developer" 
                              class="w-full h-full object-cover">
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900">Jane Smith</h3>
-                    <p class="text-green-600 mb-2">CTO</p>
-                    <p class="text-gray-600">AI & Machine Learning Expert</p>
-                </div>
-
-                <!-- Team Member 3 -->
-                <div class="text-center hover-scale animate-fade-in">
-                    <div class="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                             alt="Team member" 
-                             class="w-full h-full object-cover">
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900">Mike Johnson</h3>
-                    <p class="text-green-600 mb-2">Head of Agriculture</p>
-                    <p class="text-gray-600">Agricultural Technology Specialist</p>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Development Journey Section -->
+    <section class="py-16 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Development Journey</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    The story of how AgriBoost evolved from concept to reality
+                </p>
+            </div>
+            <div class="relative">
+                <!-- Timeline -->
+                <div class="hidden md:block w-1 bg-green-200 absolute h-full left-1/2 transform -translate-x-1/2"></div>
+                
+                <!-- Timeline items -->
+                <div class="mb-8 flex flex-col md:flex-row items-center">
+                    <div class="flex-1 md:pr-8 text-right order-2 md:order-1 animate-fade-in">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">The Idea</h3>
+                        <p class="text-gray-600">It all started with a simple idea: to create a tool that could help farmers make better decisions using technology.</p>
+                    </div>
+                    <div class="mx-auto md:mx-0 flex items-center justify-center w-12 h-12 rounded-full bg-green-500 text-white shadow-lg order-1 md:order-2 z-10 mb-4 md:mb-0">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="flex-1 md:pl-8 order-3 hidden md:block"></div>
+                </div>
+                
+                <div class="mb-8 flex flex-col md:flex-row items-center">
+                    <div class="flex-1 md:pr-8 text-right order-2 md:order-1 hidden md:block"></div>
+                    <div class="mx-auto md:mx-0 flex items-center justify-center w-12 h-12 rounded-full bg-green-500 text-white shadow-lg order-1 md:order-2 z-10 mb-4 md:mb-0">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="flex-1 md:pl-8 order-3 md:order-3 animate-fade-in">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">First Prototype</h3>
+                        <p class="text-gray-600">After a couple of weeks of research and coding, the first version of AgriBoost was born, focusing on basic weather data and crop management.</p>
+                    </div>
+                </div>
+                
+                <div class="mb-8 flex flex-col md:flex-row items-center">
+                    <div class="flex-1 md:pr-8 text-right order-2 md:order-1 animate-fade-in">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Adding AI Capabilities</h3>
+                        <p class="text-gray-600">Integrating artificial intelligence to analyze crop images and provide disease detection was a game-changer for the platform.</p>
+                    </div>
+                    <div class="mx-auto md:mx-0 flex items-center justify-center w-12 h-12 rounded-full bg-green-500 text-white shadow-lg order-1 md:order-2 z-10 mb-4 md:mb-0">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="flex-1 md:pl-8 order-3 hidden md:block"></div>
+                </div>
+                
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="flex-1 md:pr-8 text-right order-2 md:order-1 hidden md:block"></div>
+                    <div class="mx-auto md:mx-0 flex items-center justify-center w-12 h-12 rounded-full bg-green-500 text-white shadow-lg order-1 md:order-2 z-10 mb-4 md:mb-0">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="flex-1 md:pl-8 order-3 md:order-3 animate-fade-in">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Today & Beyond</h3>
+                        <p class="text-gray-600">AgriBoost continues to evolve with new features and improvements, always with the mission to empower farmers through technology.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
     <!-- Contact Section -->
-    <section class="py-16 bg-gray-50">
+    <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">Get in Touch</h2>
                 <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Have questions? We'd love to hear from you
+                    Have questions or feedback? I'd love to hear from you!
                 </p>
             </div>
-            <div class="max-w-3xl mx-auto">
-                <form class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+                <div class="bg-white rounded-xl shadow-md p-6 hover-scale animate-fade-in">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-envelope text-green-600 text-2xl"></i>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                        <textarea rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Connect via Email</h3>
+                    <p class="text-gray-600">sonughosh0810@gmail.com</p>
+                    <a href="mailto:sonughosh0810@gmail.com" class="inline-block mt-3 bg-green-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition">
+                        Send Email <i class="fas fa-paper-plane ml-1"></i>
+                    </a>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6 hover-scale animate-fade-in">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fab fa-linkedin-in text-blue-600 text-2xl"></i>
                     </div>
-                    <div class="text-center">
-                        <button type="submit" class="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition duration-300">
-                            Send Message
-                        </button>
-                    </div>
-                </form>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Connect on LinkedIn</h3>
+                    <p class="text-gray-600">Let's connect professionally</p>
+                    <a href="https://www.linkedin.com/in/subham-ghosh-7570a7293/" target="_blank" class="inline-block mt-3 bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-600 transition">
+                        View Profile <i class="fas fa-external-link-alt ml-1"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
-
+    
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -277,7 +344,7 @@
                 <div>
                     <h3 class="text-xl font-bold mb-4">AgriBoost</h3>
                     <p class="text-gray-400">
-                        Empowering farmers with technology for sustainable agriculture
+                        A personal project dedicated to empowering farmers with technology for sustainable agriculture
                     </p>
                 </div>
                 <div>
@@ -286,7 +353,6 @@
                         <li><a href="/" class="text-gray-400 hover:text-white">Home</a></li>
                         <li><a href="/about" class="text-gray-400 hover:text-white">About</a></li>
                         <li><a href="/dashboard" class="text-gray-400 hover:text-white">Dashboard</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li>
                     </ul>
                 </div>
                 <div>
@@ -299,25 +365,22 @@
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold mb-4">Connect With Us</h4>
+                    <h4 class="text-lg font-semibold mb-4">Connect With Me</h4>
                     <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-white">
-                            <i class="fab fa-facebook-f"></i>
+                        <a href="https://github.com/08-SUBHAM" target="_blank" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-github"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
+                        <a href="https://www.instagram.com/08subham_" target="_blank" class="text-gray-400 hover:text-white">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
+                        <a href="https://www.linkedin.com/in/subham-ghosh-7570a7293/" target="_blank" class="text-gray-400 hover:text-white">
                             <i class="fab fa-linkedin-in"></i>
                         </a>
                     </div>
                 </div>
             </div>
             <div class="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-                <p>&copy; 2025 AgriBoost. All rights reserved.</p>
+                <p>&copy; 2025 AgriBoost. Created with <i class="fas fa-heart text-red-500"></i> by a solo developer.</p>
             </div>
         </div>
     </footer>

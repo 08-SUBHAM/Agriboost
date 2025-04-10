@@ -106,27 +106,27 @@
     <!-- Main Content -->
     <div class="md:ml-64 transition-all duration-300">
         <!-- Header -->
-        <header class="bg-white shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Welcome back!</h1>
-                    <p class="text-gray-600">Monitor your farm activities</p>
+        <header class="bg-white shadow-md p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-gray-800">Welcome, <%= user.name %></h1>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button class="relative p-2 text-gray-500 hover:text-agri-green">
-                        <i class="fas fa-bell text-xl"></i>
-                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    <!-- Notification Button -->
+                    <button class="p-2 rounded-full hover:bg-gray-200 transition-colors relative">
+                        <i class="fas fa-bell text-gray-600"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
                     </button>
-                    <div class="w-px h-8 bg-gray-200"></div>
-                    <div class="flex items-center space-x-2">
-                        <a href="/profile" class="flex items-center">
+                    <!-- Profile Picture -->
+                    <div class="relative">
+                        <a href="/profile" class="block">
                             <% if (user && user.profilePicture && user.profilePicture.data) { %>
                                 <img src="data:<%= user.profilePicture.contentType %>;base64,<%= user.profilePicture.data.toString('base64') %>" 
-                                     alt="Profile Picture" 
-                                     class="h-8 w-8 rounded-full object-cover">
+                                     alt="Profile" 
+                                     class="w-10 h-10 rounded-full object-cover border-2 border-agri-green hover:border-agri-dark transition-colors">
                             <% } else { %>
-                                <div class="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-sm font-bold text-purple-600">
-                                    <%= user.firstname.charAt(0).toUpperCase() %><%= user.surname.charAt(0).toUpperCase() %>
+                                <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center border-2 border-agri-green hover:border-agri-dark transition-colors">
+                                    <i class="fas fa-user text-gray-500"></i>
                                 </div>
                             <% } %>
                         </a>
